@@ -35,14 +35,14 @@ You can use it:
 
 The project follows a **multi-layered architecture** to promote modularity and maintainability:
 
-``
+
 
 
 
 
 ```
 
-
+```
 ### **Layer Responsibilities**
 
 - **Controller:** Handles HTTP requests and builds structured responses  
@@ -520,6 +520,7 @@ This project is licensed under the **MIT License**.
 You are free to use, modify, and distribute with proper attribution.
 
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
+
 
 
 
