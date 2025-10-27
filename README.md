@@ -35,9 +35,10 @@ You can use it:
 
 The project follows a **multi-layered architecture** to promote modularity and maintainability:
 
-```
+``
 
-<img width="844" height="304" alt="Architecture Flow" src="https://github.com/user-attachments/assets/d1a5ed51-bf48-4294-8171-eeb07061534d" />
+
+
 
 ```
 
@@ -152,9 +153,11 @@ Example:
 │
 ▼
 ```
+```
 ───────────────────────────────────────────────
 5️⃣ Model Layer
 ───────────────────────────────────────────────
+```
 📦 **Package:** `model`
 
 * Defines database entities (`Category`, `Product`)
@@ -392,51 +395,28 @@ All exceptions are managed via `GlobalExceptionHandler`.
 
 **`src/main/resources/application.properties`**
 
-```
-# ==============================================
-# Application Configuration
-# ==============================================
+```properties
 spring.application.name=catalogue-service
 
-# ==============================================
-#  Database Configuration
-# ==============================================
-# Replace the values below with your actual database credentials
-spring.datasource.url=jdbc:mysql://<HOST>:<PORT>/<DATABASE_NAME>?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-spring.datasource.username=<DB_USERNAME>
-spring.datasource.password=<DB_PASSWORD>
+# Database Configuration
+spring.datasource.url=jdbc:mysql://localhost:3306/catalogueservicedb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+spring.datasource.username=root
+spring.datasource.password=root
 
-# ==============================================
-#  JPA / Hibernate Configuration
-# ==============================================
-# Automatically updates the schema without dropping existing data
+# JPA / Hibernate
 spring.jpa.hibernate.ddl-auto=update
-
-# Show SQL queries in console (for debugging)
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 
-# ==============================================
-#  Swagger / OpenAPI Configuration
-# ==============================================
+# Swagger Documentation
 springdoc.swagger-ui.path=/swagger-ui.html
 springdoc.api-docs.enabled=true
 springdoc.swagger-ui.enabled=true
 
-# ==============================================
-#  Logging Configuration
-# ==============================================
-# Log SQL statements (optional)
+# Logging
 logging.level.org.hibernate.SQL=DEBUG
-# Log SQL parameter bindings (optional, verbose)
 logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
-
-# ==============================================
-#  Actuator Endpoints
-# ==============================================
-management.endpoints.web.exposure.include=health,info
-
 ```
 
 ---
@@ -540,3 +520,91 @@ This project is licensed under the **MIT License**.
 You are free to use, modify, and distribute with proper attribution.
 
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
