@@ -19,15 +19,15 @@ You can use it:
 
 | **Layer** | **Technology** |
 |------------|----------------|
-| Framework | Spring Boot 3.x |
-| Language | Java 17+ |
+| Framework | Spring Boot 6.2.x |
+| Language | Java 21.0.8 2025-07-15 LTS |
 | ORM | Spring Data JPA (Hibernate) |
 | Database | MySQL |
-| Validation | Jakarta Validation (JSR-380) |
-| API Docs | Springdoc OpenAPI (Swagger UI) |
+| Validation | Jakarta Bean Validation 3.0 |
+| API Docs | Springdoc OpenAPI 2.8.12 (Swagger UI) |
 | Logging | SLF4J + Logback |
 | Utilities | Lombok |
-| Build Tool | Maven |
+| Build Tool | Apache Maven|
 
 ---
 
@@ -520,6 +520,7 @@ This project is licensed under the **MIT License**.
 You are free to use, modify, and distribute with proper attribution.
 
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
+
 
 
 
