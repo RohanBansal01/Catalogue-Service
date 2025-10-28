@@ -475,6 +475,8 @@ Make sure MySQL is running locally and update credentials in `application.proper
 mvn clean install
 mvn spring-boot:run
 ```
+💻 Alternatively, open the project in IntelliJ IDEA, navigate to
+CatalogueServiceApplication.java, and simply click ▶ Run to start the application.
 
 ### 4️⃣ Access the Application
 
@@ -557,4 +559,5 @@ You are free to use, modify, and distribute with proper attribution.
 
 
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
+
 
