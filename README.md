@@ -87,10 +87,9 @@ The project follows a **multi-layered architecture** to promote modularity and m
 
 <img width="844" height="304" alt="Architecture Flow" src="https://github.com/user-attachments/assets/0425003f-d7a0-486a-bf72-02949be0d1b4" />
 
-```
 
 
-```
+
 ---
 ### **Layer Responsibilities**
 
@@ -572,6 +571,7 @@ You are free to use, modify, and distribute with proper attribution.
 
 
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
+
 
 
 
