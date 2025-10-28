@@ -37,6 +37,7 @@ public class Category {
     /**
      * Name/title of the category.
      */
+    @Column(unique = true)
     @NotBlank(message = "Category title cannot be blank")
     @Size(max = 100, message = "Category title must not exceed 100 characters")
     private String title;
