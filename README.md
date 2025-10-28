@@ -1,9 +1,12 @@
-# 🛍️ Catalogue Service API
+ <div align="center">
+  <h1>🛍️ Catalogue Service API</h1>
+</div>
 
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.x-brightgreen)
-![Java](https://img.shields.io/badge/Java-21-blue)
-![MySQL](https://img.shields.io/badge/MySQL-8.0.44-orange)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.x-brightgreen) &nbsp;&nbsp;
+![Java](https://img.shields.io/badge/Java-21-blue) &nbsp;&nbsp;
+![MySQL](https://img.shields.io/badge/MySQL-8.0.44-orange) &nbsp;&nbsp;
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow)
+
 
 
 > A clean and modular **Spring Boot microservice** for managing product catalogues — including **categories** and **products** — with standardized API responses, JPA integration, and centralized exception handling.
@@ -481,7 +484,8 @@ CatalogueServiceApplication.java, and simply click ▶ Run to start the applicat
 ### 4️⃣ Access the Application
 
 * Base URL: [http://localhost:8080/api](http://localhost:8080/api)
-* Swagger UI: [http://localhost:8080/swagger-ui/index.html#/l](http://localhost:8080/swagger-ui/index.html#/)
+* Swagger UI: [http://localhost:8080/swagger-ui/index.html#/](http://localhost:8080/swagger-ui/index.html#/)
+
 
 ---
 
@@ -535,11 +539,11 @@ GET /api/products/999
 
 ## 🚀 Future Enhancements
 
-* ✅ JWT-based authentication & role-based access control
-* ✅ Docker & containerized deployment
-* ✅ Pagination & filtering for product APIs
-* ✅ Redis caching for frequently accessed data
-* ✅ Integration with API Gateway / Config Server
+* ⬜ JWT-based authentication & role-based access control
+* ⬜ Docker & containerized deployment
+* ⬜ Pagination & filtering for product APIs
+* ⬜ Redis caching for frequently accessed data
+* ⬜ Integration with API Gateway / Config Server
 
 ---
 
@@ -559,5 +563,6 @@ You are free to use, modify, and distribute with proper attribution.
 
 
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
+
 
 
