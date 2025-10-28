@@ -1,9 +1,44 @@
 # 🛍️ Catalogue Service API
 
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.x-brightgreen)
+![Java](https://img.shields.io/badge/Java-21-blue)
+![MySQL](https://img.shields.io/badge/MySQL-8.0.44-orange)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow)
+
+
 > A clean and modular **Spring Boot microservice** for managing product catalogues — including **categories** and **products** — with standardized API responses, JPA integration, and centralized exception handling.
+
 
 ---
 
+## 📑 Table of Contents
+
+1. [Overview](#-overview)
+2. [Tech Stack](#-tech-stack)
+3. [Architecture Overview](#-architecture-overview)
+
+   * [Layer Responsibilities](#layer-responsibilities)
+4. [Folder Structure](#-folder-structure)
+5. [End-to-End Request Flow](#-end-to-end-request-flow)
+
+   * [Step-by-Step Flow](#-step-by-step-flow)
+   * [Summary Table](#-summary-table)
+6. [Entity Relationship](#-entity-relationship)
+7. [API Endpoints](#-api-endpoints)
+
+   * [Category APIs](#-category-apis)
+   * [Product APIs](#-product-apis)
+8. [Sample Payloads](#-sample-payloads)
+9. [Standardized Response Format](#-standardized-response-format)
+10. [Exception Handling](#-exception-handling)
+11. [Configuration](#-configuration)
+12. [How to Run Locally](#-how-to-run-locally)
+13. [Example Responses](#-example-responses)
+14. [Future Enhancements](#-future-enhancements)
+15. [Author](#-author)
+16. [License](#-license)
+
+---
 ## 📘 Overview
 
 The **Catalogue Service** provides a set of RESTful APIs to manage **categories** and **products**.  
@@ -16,6 +51,9 @@ You can use it:
 ---
 
 ## ⚙️ Tech Stack
+
+
+
 
 | **Layer** | **Technology** |
 |------------|----------------|
@@ -34,11 +72,9 @@ You can use it:
 ## 🧱 Architecture Overview
 
 The project follows a **multi-layered architecture** to promote modularity and maintainability:
+
+
 <img width="844" height="304" alt="Architecture Flow" src="https://github.com/user-attachments/assets/0425003f-d7a0-486a-bf72-02949be0d1b4" />
-
-
-
-
 
 
 ```
@@ -518,4 +554,7 @@ GET /api/products/999
 This project is licensed under the **MIT License**.
 You are free to use, modify, and distribute with proper attribution.
 
+
+
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
+
