@@ -19,10 +19,10 @@ You can use it:
 
 | **Layer** | **Technology** |
 |------------|----------------|
-| Framework | Spring Boot 6.2.x |
+| Framework | Spring Boot 3.3.x (built on Spring Framework 6.2.x) |
 | Language | Java 21.0.8 2025-07-15 LTS |
-| ORM | Spring Data JPA (Hibernate) |
-| Database | MySQL |
+| ORM | Spring Data JPA (Hibernate ORM 6.x) |
+| Database | MySQL Community Server 8.0.44 (GPL) |
 | Validation | Jakarta Bean Validation 3.0 |
 | API Docs | Springdoc OpenAPI 2.8.12 (Swagger UI) |
 | Logging | SLF4J + Logback |
@@ -519,95 +519,3 @@ This project is licensed under the **MIT License**.
 You are free to use, modify, and distribute with proper attribution.
 
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
