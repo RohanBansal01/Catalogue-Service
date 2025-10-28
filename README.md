@@ -1,13 +1,24 @@
 <div align="center">
   <h1>🛍️ Catalogue Service API</h1>
 </div>
-
 <p align="center">
-  <img src="https://img.shields.io/badge/Spring%20Boot-3.3.x-brightgreen" alt="Spring Boot" /> &nbsp;&nbsp;
-  <img src="https://img.shields.io/badge/Java-21-blue" alt="Java" /> &nbsp;&nbsp;
-  <img src="https://img.shields.io/badge/MySQL-8.0.44-orange" alt="MySQL" /> &nbsp;&nbsp;
-  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License: MIT" />
+  <a href="https://spring.io/projects/spring-boot">
+    <img src="https://img.shields.io/badge/Spring%20Boot-3.3.x-brightgreen" alt="Spring Boot" />
+  </a>
+  &nbsp;
+  <a href="https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html">
+    <img src="https://img.shields.io/badge/Java-21-blue" alt="Java" />
+  </a>
+  &nbsp;
+  <a href="https://www.mysql.com/">
+    <img src="https://img.shields.io/badge/MySQL-8.0.44-orange" alt="MySQL" />
+  </a>
+  &nbsp;
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License: MIT" />
+  </a>
 </p>
+
 
 > A clean and modular **Spring Boot microservice** for managing product catalogues — including **categories** and **products** — with standardized API responses, JPA integration, and centralized exception handling.
 
@@ -561,6 +572,7 @@ You are free to use, modify, and distribute with proper attribution.
 
 
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
+
 
 
 
