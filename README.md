@@ -308,8 +308,6 @@ ready to be rendered on the frontend.
 | `GET` | `/api/products` | Get all products |
 | `GET` | `/api/products/{id}` | Get product by ID |
 | `GET` | `/api/products/sku/{sku}` | Get product by SKU |
-| `GET` | `/api/products/category/{id}` | Get products by category ID |
-| `GET` | `/api/products/active` | Get all active products |
 | `PUT` | `/api/products/{id}` | Update existing product |
 | `DELETE` | `/api/products/{id}` | Delete product by ID |
 
@@ -444,7 +442,7 @@ mvn spring-boot:run
 ### 4️⃣ Access the Application
 
 * Base URL: [http://localhost:8080/api](http://localhost:8080/api)
-* Swagger UI: [http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)
+* Swagger UI: [http://localhost:8080/swagger-ui/index.html#/l](http://localhost:8080/swagger-ui/index.html#/)
 
 ---
 
@@ -520,6 +518,7 @@ This project is licensed under the **MIT License**.
 You are free to use, modify, and distribute with proper attribution.
 
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
+
 
 
 
