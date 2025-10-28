@@ -1,16 +1,15 @@
- <div align="center">
+<div align="center">
   <h1>🛍️ Catalogue Service API</h1>
 </div>
 
-![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.x-brightgreen) &nbsp;&nbsp;
-![Java](https://img.shields.io/badge/Java-21-blue) &nbsp;&nbsp;
-![MySQL](https://img.shields.io/badge/MySQL-8.0.44-orange) &nbsp;&nbsp;
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow)
-
-
+<p align="center">
+  <img src="https://img.shields.io/badge/Spring%20Boot-3.3.x-brightgreen" alt="Spring Boot" /> &nbsp;&nbsp;
+  <img src="https://img.shields.io/badge/Java-21-blue" alt="Java" /> &nbsp;&nbsp;
+  <img src="https://img.shields.io/badge/MySQL-8.0.44-orange" alt="MySQL" /> &nbsp;&nbsp;
+  <img src="https://img.shields.io/badge/License-MIT-yellow" alt="License: MIT" />
+</p>
 
 > A clean and modular **Spring Boot microservice** for managing product catalogues — including **categories** and **products** — with standardized API responses, JPA integration, and centralized exception handling.
-
 
 ---
 
@@ -19,16 +18,13 @@
 1. [Overview](#-overview)
 2. [Tech Stack](#-tech-stack)
 3. [Architecture Overview](#-architecture-overview)
-
    * [Layer Responsibilities](#layer-responsibilities)
 4. [Folder Structure](#-folder-structure)
 5. [End-to-End Request Flow](#-end-to-end-request-flow)
-
    * [Step-by-Step Flow](#-step-by-step-flow)
    * [Summary Table](#-summary-table)
 6. [Entity Relationship](#-entity-relationship)
 7. [API Endpoints](#-api-endpoints)
-
    * [Category APIs](#-category-apis)
    * [Product APIs](#-product-apis)
 8. [Sample Payloads](#-sample-payloads)
@@ -40,6 +36,7 @@
 14. [Future Enhancements](#-future-enhancements)
 15. [Author](#-author)
 16. [License](#-license)
+
 
 ---
 ## 📘 Overview
@@ -563,6 +560,7 @@ You are free to use, modify, and distribute with proper attribution.
 
 
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
+
 
 
 
