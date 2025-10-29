@@ -252,15 +252,29 @@ Example:
 
 ```json
 {
-  "status": "success",
-  "data": {
-    "id": 1,
-    "name": "Smartphone",
-    "price": 49999,
-    "category": "Electronics"
-  },
-  "error": null
+    "status": "success",
+    "data": {
+        "id": 1,
+        "name": "MacBook Pro 16\" (M4 Max, Space Black)",
+        "description": "Apple M4 Max chip with 14-core CPU, 32-core GPU, and 16-core Neural Engine. 36GB unified memory, 1TB SSD storage, Liquid Retina XDR display (16.2-inch). Includes 140W USB-C Power Adapter and multiple Thunderbolt 5 ports.",
+        "price": 299900.0,
+        "stockQuantity": 25,
+        "sku": "MBP16-M4MAX-1TB-SB",
+        "active": true,
+        "createdAt": "2025-10-29T13:42:51.502147",
+        "updatedAt": "2025-10-29T13:42:51.502147",
+        "category": {
+            "id": 1,
+            "title": null,
+            "description": null,
+            "createdAt": null,
+            "updatedAt": null,
+            "products": []
+        }
+    },
+    "error": null
 }
+
 ```
 
 ```bash
@@ -282,13 +296,13 @@ Example:
 
 ```json
 {
-  "status": "error",
-  "data": null,
-  "error": {
-    "errorCode": "PRODUCT_NOT_FOUND",
-    "errorMessage": "Product with ID 101 not found",
-    "errorSource": "ProductService"
-  }
+    "status": "error",
+    "data": null,
+    "error": {
+        "errorCode": "PRODUCT_NOT_FOUND",
+        "errorMessage": "Product with ID 2 not found",
+        "errorSource": "ProductService"
+    }
 }
 ```
 
@@ -374,14 +388,17 @@ ready to be rendered on the frontend.
 ### ➕ Create Product
 
 ```json
+
 {
-  "name": "Smartphone",
-  "description": "Android 14, 128GB storage",
-  "price": 49999,
-  "stockQuantity": 50,
-  "sku": "ELEC-001",
+  "name": "MacBook Pro 16\" (M4 Max, Space Black)",
+  "description": "Apple M4 Max chip with 14-core CPU, 32-core GPU, and 16-core Neural Engine. 36GB unified memory, 1TB SSD storage, Liquid Retina XDR display (16.2-inch). Includes 140W USB-C Power Adapter and multiple Thunderbolt 5 ports.",
+  "price": 299900.00,
+  "stockQuantity": 25,
+  "sku": "MBP16-M4MAX-1TB-SB",
   "active": true,
-  "category": { "id": 1 }
+  "category": {
+    "id": 1
+  }
 }
 ```
 
@@ -394,14 +411,18 @@ All API responses follow a unified structure using `ResponseStructure<T>`.
 ### ✅ Success Example
 
 ```json
+
 {
-  "status": "success",
-  "data": {
-    "id": 1,
-    "title": "Electronics",
-    "description": "All electronic gadgets and accessories"
-  },
-  "error": null
+    "status": "success",
+    "data": {
+        "id": 2,
+        "title": "Fashion",
+        "description": "Clothing and accessories",
+        "createdAt": "2025-10-29T13:01:35.910691",
+        "updatedAt": "2025-10-29T13:01:35.910691",
+        "products": []
+    },
+    "error": null
 }
 ```
 
@@ -511,13 +532,28 @@ GET /api/categories/1
 
 ```json
 {
-  "status": "success",
-  "data": {
-    "id": 1,
-    "title": "Electronics",
-    "description": "All electronic gadgets and accessories"
-  },
-  "error": null
+    "status": "success",
+    "data": {
+        "id": 1,
+        "title": "Electronics",
+        "description": "All electronic gadgets and accessories",
+        "createdAt": "2025-10-27T11:27:03.200939",
+        "updatedAt": "2025-10-27T11:27:03.200939",
+        "products": [
+            {
+                "id": 1,
+                "name": "MacBook Pro 16\" (M4 Max, Space Black)",
+                "description": "Apple M4 Max chip with 14-core CPU, 32-core GPU, and 16-core Neural Engine. 36GB unified memory, 1TB SSD storage, Liquid Retina XDR display (16.2-inch). Includes 140W USB-C Power Adapter and multiple Thunderbolt 5 ports.",
+                "price": 299900.0,
+                "stockQuantity": 25,
+                "sku": "MBP16-M4MAX-1TB-SB",
+                "active": true,
+                "createdAt": "2025-10-29T13:42:51.502147",
+                "updatedAt": "2025-10-29T13:42:51.502147"
+            }
+        ]
+    },
+    "error": null
 }
 ```
 
@@ -526,20 +562,20 @@ GET /api/categories/1
 **Request:**
 
 ```
-GET /api/products/999
+GET /api/products/99
 ```
 
 **Response:**
 
 ```json
 {
-  "status": "error",
-  "data": null,
-  "error": {
-    "errorCode": "PRODUCT_NOT_FOUND",
-    "errorMessage": "Product with ID 999 not found",
-    "errorSource": "ProductService"
-  }
+    "status": "error",
+    "data": null,
+    "error": {
+        "errorCode": "PRODUCT_NOT_FOUND",
+        "errorMessage": "Product with ID 99 not found",
+        "errorSource": "ProductService"
+    }
 }
 ```
 
@@ -571,6 +607,7 @@ You are free to use, modify, and distribute with proper attribution.
 
 
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
+
 
 
 
