@@ -114,14 +114,22 @@ public class Product {
     private LocalDateTime updatedAt;
 
     /**
-     * Category to which this product belongs.
+     * The category this product belongs to.
      * <p>
-     * Many products can belong to one category (ManyToOne relationship).
+     * Defines the many-to-one relationship between {@link Product} and {@link Category},
+     * where multiple products can be linked to a single category.
+     * </p>
+     * <p>
+     * Uses {@code LAZY} fetching and the {@code category_id} column as a foreign key.
+     * The {@link com.fasterxml.jackson.annotation.JsonBackReference} annotation prevents
+     * infinite recursion during JSON serialization.
      * </p>
      */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
+    @JsonBackReference
     private Category category;
+
     /**
      * Assigns this product to the given category and ensures the
      * bidirectional relationship is kept consistent by also adding
