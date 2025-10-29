@@ -467,7 +467,7 @@ All exceptions are managed via `GlobalExceptionHandler`.
 spring.application.name=catalogue-service
 
 # Database Configuration
-spring.datasource.url=jdbc:mysql://localhost:3306/<databsename>?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+spring.datasource.url=jdbc:mysql://localhost:3306/<your databasename>?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
 spring.datasource.username=<your username>
 spring.datasource.password=<your password>
 
@@ -615,6 +615,7 @@ You are free to use, modify, and distribute with proper attribution.
 
 
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
+
 
 
 
