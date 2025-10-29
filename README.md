@@ -463,27 +463,35 @@ All exceptions are managed via `GlobalExceptionHandler`.
 **`src/main/resources/application.properties`**
 
 ```properties
+# Application Configuration
 spring.application.name=catalogue-service
 
 # Database Configuration
-spring.datasource.url=jdbc:mysql://localhost:3306/catalogueservicedb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-spring.datasource.username=root
-spring.datasource.password=root
+spring.datasource.url=jdbc:mysql://localhost:3306/<databsename>?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+spring.datasource.username=<your username>
+spring.datasource.password=<your password>
 
-# JPA / Hibernate
+# JPA / Hibernate Configuration
+# Keeps existing tables and updates schema safely
 spring.jpa.hibernate.ddl-auto=update
+# Shows SQL queries in console
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.format_sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 
-# Swagger Documentation
+# Swagger / OpenAPI Configuration
 springdoc.swagger-ui.path=/swagger-ui.html
 springdoc.api-docs.enabled=true
 springdoc.swagger-ui.enabled=true
 
-# Logging
-logging.level.org.hibernate.SQL=DEBUG
+# Logging SQL bind parameters (helpful for debugging)
 logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
+# Show executed SQL statements (optional for debugging)
+logging.level.org.hibernate.SQL=DEBUG
+
+management.endpoints.web.exposure.include=health,info
+
+
 ```
 
 ---
@@ -607,6 +615,7 @@ You are free to use, modify, and distribute with proper attribution.
 
 
 > 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
+
 
 
 
