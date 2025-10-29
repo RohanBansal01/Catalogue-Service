@@ -61,18 +61,23 @@ public class Category {
      */
     @UpdateTimestamp
     private LocalDateTime updatedAt;
-
+  
     /**
-     * List of products associated with this category.
+     * The list of products belonging to this category.
      * <p>
-     * This is a one-to-many relationship where one category
-     * can have multiple products. Cascade operations and orphan
-     * removal are enabled.
+     * Represents the one-to-many side of the relationship between {@link Category}
+     * and {@link Product}, where one category can contain multiple products.
+     * </p>
+     * <p>
+     * Cascade and orphan removal are enabled. The {@link com.fasterxml.jackson.annotation.JsonManagedReference}
+     * annotation ensures proper JSON serialization without recursion.
      * </p>
      */
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
+    @JsonManagedReference
     private List<Product> products = new ArrayList<>();
+
     /**
      * Adds a product to this category and ensures the bidirectional
      * relationship is kept consistent by also setting the category
