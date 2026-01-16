@@ -1,224 +1,156 @@
 package com.solveda.catalogueservice.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-/**
- * Represents a product in the catalogue system.
- * <p>
- * Each product belongs to a single category. This entity
- * includes basic product information like name, price,
- * stock quantity, and SKU.
- * </p>
- */
 @Entity
+@Table(name = "products")
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-@Table(name = "products") // match DB table name
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class Product {
 
-    /**
-     * Unique identifier for the product.
-     * Generated automatically by the database.
-     */
+    /* =========================
+       Identity
+       ========================= */
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    @ToString.Include
     private Long id;
 
-    /**
-     * Name of the product.
-     */
-    @NotBlank(message = "Product name cannot be blank")
+    /* =========================
+       State
+       ========================= */
+
+    @Column(nullable = false)
     private String name;
 
-    /**
-     * Description providing details about the product.
-     */
-    @NotBlank(message = "Description cannot be blank")
+    @Column(nullable = false)
     private String description;
 
-    /**
-     * Price of the product.
-     */
-    @NotNull(message = "Price is required")
-    @PositiveOrZero(message = "Price must not be negative")
-    private Double price;
+    @Column(nullable = false)
+    private boolean active;
 
     /**
-     * Available stock quantity for the product.
+     * Aggregate reference only (DDD)
      */
-    @NotNull(message = "Stock quantity is required")
-    @PositiveOrZero(message = "Stock quantity cannot be negative")
-    private Integer stockQuantity;
+    @Column(name = "category_id", nullable = false)
+    private Long categoryId;
 
-    /**
-     * Stock Keeping Unit (SKU) for the product.
-     *
-     * <p>
-     * The SKU is a unique identifier used to track and manage products in the catalogue.
-     * It must be non-blank and unique across all products in the database.
-     * </p>
-     *
-     * <p><b>Constraints:</b></p>
-     * <ul>
-     *     <li>Database: {@code UNIQUE} constraint ensures no two products share the same SKU.</li>
-     *     <li>Validation: {@link  NotBlank} ensures the SKU cannot be null, empty, or only whitespace.</li>
-     * </ul>
-     *
-     * <p>Example usage:</p>
-     * <pre>
-     *     Product product = new Product();
-     *     product.setSku("ABC-12345");
-     * </pre>
-     *
-     * <p>Notes:</p>
-     * <ul>
-     *     <li>Changing an SKU for an existing product should be done carefully, as it may affect references in other systems or logs.</li>
-     *     <li>SKU should follow a consistent format for better product management and searchability.</li>
-     * </ul>
-     */
-    @Column(unique = true)
-    @NotBlank(message = "SKU cannot be blank")
+    @Column(nullable = false)
+    private BigDecimal price;
+
+    @Column(nullable = false, unique = true)
     private String sku;
 
+    @Column(name = "stock_quantity", nullable = false)
+    private Integer stockQuantity;
 
-    /**
-     * Flag indicating whether the product is active (available for sale).
-     */
-    @NotNull(message = "Active status must be specified")
-    private Boolean active;
+    /* =========================
+       Auditing
+       ========================= */
 
-    /**
-     * Timestamp for when the product was created.
-     * Automatically populated by Hibernate.
-     */
-    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    /**
-     * Timestamp for the last update of the product.
-     * Automatically updated by Hibernate.
-     */
-    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    /**
-     * The category this product belongs to.
-     * <p>
-     * Defines the many-to-one relationship between {@link Product} and {@link Category},
-     * where multiple products can be linked to a single category.
-     * </p>
-     * <p>
-     * Uses {@code LAZY} fetching and the {@code category_id} column as a foreign key.
-     * The {@link com.fasterxml.jackson.annotation.JsonBackReference} annotation prevents
-     * infinite recursion during JSON serialization.
-     * </p>
-     */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
-    @JsonBackReference
-    private Category category;
+    /* =========================
+       Factory
+       ========================= */
 
-    /**
-     * Assigns this product to the given category and ensures the
-     * bidirectional relationship is kept consistent by also adding
-     * this product to the category's product list.
-     *
-     * <p>Example usage:</p>
-     * <pre>
-     *     Product product = new Product("Laptop");
-     *     Category category = new Category("Electronics");
-     *     product.assignCategory(category);
-     * </pre>
-     *
-     * After calling this method:
-     * <ul>
-     *   <li>product.getCategory() will return the given category.</li>
-     *   <li>The product will appear in category.getProducts().</li>
-     * </ul>
-     *
-     * @param category the category to assign this product to (may be null)
-     */
-    public void assignCategory(Category category) {
-        this.category = category;
-        if (category != null && !category.getProducts().contains(this)) {
-            category.getProducts().add(this);
+    public static Product create(
+            String name,
+            String description,
+            Long categoryId,
+            BigDecimal price,
+            String sku,
+            Integer stockQuantity
+    ) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Product name must not be blank");
         }
-    }
-
-    /**
-     * Removes this product from its current category and ensures
-     * the bidirectional relationship is kept consistent by also
-     * removing this product from the category's product list.
-     *
-     * <p>Example usage:</p>
-     * <pre>
-     *     product.removeCategory();
-     * </pre>
-     *
-     * After calling this method:
-     * <ul>
-     *   <li>product.getCategory() will return null.</li>
-     *   <li>The product will no longer appear in its old category.getProducts().</li>
-     * </ul>
-     */
-    public void removeCategory() {
-        if (this.category != null) {
-            this.category.getProducts().remove(this);
-            this.category = null;
+        if (description == null || description.isBlank()) {
+            throw new IllegalArgumentException("Product description must not be blank");
         }
+        if (categoryId == null) {
+            throw new IllegalArgumentException("CategoryId must be provided");
+        }
+        if (sku == null || sku.isBlank()) {
+            throw new IllegalArgumentException("SKU must be provided");
+        }
+
+        Product product = new Product();
+        product.name = name;
+        product.description = description;
+        product.categoryId = categoryId;
+        product.price = price != null ? price : BigDecimal.ZERO;
+        product.sku = sku;
+        product.stockQuantity = stockQuantity != null ? stockQuantity : 0;
+        product.active = true;
+        product.createdAt = LocalDateTime.now();
+        product.updatedAt = product.createdAt;
+
+        return product;
     }
 
+    /* =========================
+       Behavior
+       ========================= */
 
-
-    /**
-     * Equality check based only on the unique ID.
-     *
-     * @param o The object to compare with.
-     * @return true if the IDs are equal, false otherwise.
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Product)) return false;
-        Product product = (Product) o;
-        return id != null && id.equals(product.id);
+    public void deactivate() {
+        if (!this.active) return;
+        this.active = false;
+        touch();
     }
 
-    /**
-     * Hash code based only on the unique ID.
-     *
-     * @return hash code for the product.
-     */
-    @Override
-    public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+    public void activate() {
+        if (this.active) return;
+        this.active = true;
+        touch();
     }
 
-    /**
-     * String representation of the product.
-     * Excludes category to avoid recursion.
-     *
-     * @return string describing the product.
-     */
-    @Override
-    public String toString() {
-        return "Product{id=" + id +
-                ", name='" + name + '\'' +
-                ", price=" + price +
-                ", stockQuantity=" + stockQuantity +
-                ", active=" + active +
-                '}';
+    public void rename(String newName) {
+        if (newName == null || newName.isBlank()) {
+            throw new IllegalArgumentException("Product name must not be blank");
+        }
+        this.name = newName;
+        touch();
+    }
+
+    public void changeDescription(String newDescription) {
+        this.description = newDescription;
+        touch();
+    }
+
+    public void reassignCategory(Long newCategoryId) {
+        if (newCategoryId == null) {
+            throw new IllegalArgumentException("CategoryId must not be null");
+        }
+        this.categoryId = newCategoryId;
+        touch();
+    }
+
+    public void changeStock(Integer newStock) {
+        if (newStock == null || newStock < 0) {
+            throw new IllegalArgumentException("Stock cannot be negative");
+        }
+        this.stockQuantity = newStock;
+        touch();
+    }
+
+    /* =========================
+       Internal
+       ========================= */
+
+    private void touch() {
+        this.updatedAt = LocalDateTime.now();
     }
 }
