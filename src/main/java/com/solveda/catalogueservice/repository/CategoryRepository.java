@@ -4,6 +4,9 @@ import com.solveda.catalogueservice.model.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+import java.util.Optional;
+
 /**
  * <pre>
  *  Repository interface for Category entity.
@@ -13,11 +16,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
-    /**
-     * Find category by title.
-     *
-     * @param title the category title
-     * @return category with the matching title, if exists
-     */
-    Category findByTitle(String title);
+    Optional<Category> findByTitle(String title);
+
+    List<Category> findByActiveTrue();
 }

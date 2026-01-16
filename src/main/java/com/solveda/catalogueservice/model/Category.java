@@ -1,161 +1,110 @@
 package com.solveda.catalogueservice.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-/**
- * Represents a product category in the catalogue system.
- * <p>
- * Each category can have multiple products associated with it
- * through a bi-directional one-to-many relationship.
- * </p>
- */
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 @Table(name = "categories")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@ToString(onlyExplicitlyIncluded = true)
 public class Category {
 
-    /**
-     * Unique identifier for the category.
-     * Generated automatically by the database.
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) /** MySQL/Postgres friendly */    private Long id;
+    /* =========================
+       Identity
+       ========================= */
 
-    /**
-     * Name/title of the category.
-     */
-    @NotBlank(message = "Category title cannot be blank")
-    @Size(max = 100, message = "Category title must not exceed 100 characters")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    private Long id;
+
+    /* =========================
+       State
+       ========================= */
+
+    @Column(nullable = false, unique = true)
+    @ToString.Include
     private String title;
 
-    /**
-     * Description providing details about the category.
-     */
-    @Size(max = 500, message = "Description must not exceed 500 characters")
+    @Column
     private String description;
 
-    /**
-     * Timestamp for when the category was created.
-     * Automatically populated by Hibernate.
-     */
-    @CreationTimestamp
+    @Column(nullable = false)
+    @ToString.Include
+    private boolean active;
+
+    /* =========================
+       Auditing (infrastructure)
+       ========================= */
+
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    /**
-     * Timestamp for the last update of the category.
-     * Automatically updated by Hibernate.
-     */
-    @UpdateTimestamp
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    /**
-     * List of products associated with this category.
-     * <p>
-     * This is a one-to-many relationship where one category
-     * can have multiple products. Cascade operations and orphan
-     * removal are enabled.
-     * </p>
-     */
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @Builder.Default
-    private List<Product> products = new ArrayList<>();
-    /**
-     * Adds a product to this category and ensures the bidirectional
-     * relationship is kept consistent by also setting the category
-     * reference inside the product.
-     *
-     * <p>Example usage:</p>
-     * <pre>
-     *     Category category = new Category("Electronics");
-     *     Product product = new Product("Laptop");
-     *     category.addProduct(product);
-     * </pre>
-     *
-     * After calling this method:
-     * <ul>
-     *   <li>The product will appear in category.getProducts().</li>
-     *   <li>product.getCategory() will return this category.</li>
-     * </ul>
-     *
-     * @param product the product to be added (must not be null)
-     */
-    public void addProduct(Product product) {
-        products.add(product);
-        product.setCategory(this);
+    /* =========================
+       Factory
+       ========================= */
+
+    public static Category create(String title, String description) {
+        if (title == null || title.isBlank()) {
+            throw new IllegalArgumentException("Category title must not be blank");
+        }
+
+        Category category = new Category();
+        category.title = title;
+        category.description = description;
+        category.active = true;
+        category.createdAt = LocalDateTime.now();
+        category.updatedAt = category.createdAt;
+
+        return category;
     }
 
-    /**
-     * Removes a product from this category and ensures the bidirectional
-     * relationship is kept consistent by clearing the category reference
-     * inside the product.
-     *
-     * <p>Example usage:</p>
-     * <pre>
-     *     category.removeProduct(product);
-     * </pre>
-     *
-     * After calling this method:
-     * <ul>
-     *   <li>The product will no longer appear in category.getProducts().</li>
-     *   <li>product.getCategory() will return null.</li>
-     * </ul>
-     *
-     * @param product the product to be removed (must not be null)
-     */
-    public void removeProduct(Product product) {
-        products.remove(product);
-        product.setCategory(null);
+    /* =========================
+       Behavior (DDD)
+       ========================= */
+
+    public void deactivate() {
+        if (!this.active) {
+            return; // idempotent
+        }
+        this.active = false;
+        touch();
     }
 
-
-    /**
-     * Equality check based only on the unique ID.
-     *
-     * @param o The object to compare with.
-     * @return true if the IDs are equal, false otherwise.
-     */
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Category)) return false;
-        Category category = (Category) o;
-        return id != null && id.equals(category.id);
+    public void activate() {
+        if (this.active) {
+            return; // idempotent
+        }
+        this.active = true;
+        touch();
     }
 
-    /**
-     * Hash code based only on the unique ID.
-     *
-     * @return hash code for the category.
-     */
-    @Override
-    public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+    public void rename(String newTitle) {
+        if (newTitle == null || newTitle.isBlank()) {
+            throw new IllegalArgumentException("Category title must not be blank");
+        }
+        this.title = newTitle;
+        touch();
     }
 
-    /**
-     * String representation of the category.
-     * Excludes products to avoid recursion.
-     *
-     * @return string describing the category.
-     */
-    @Override
-    public String toString() {
-        return "Category{id=" + id +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                '}';
+    public void changeDescription(String newDescription) {
+        this.description = newDescription;
+        touch();
+    }
+
+    /* =========================
+       Internal helpers
+       ========================= */
+
+    private void touch() {
+        this.updatedAt = LocalDateTime.now();
     }
 }

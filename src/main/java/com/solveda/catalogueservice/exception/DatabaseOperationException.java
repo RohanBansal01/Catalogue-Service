@@ -22,8 +22,7 @@ package com.solveda.catalogueservice.exception;
  */
 public class DatabaseOperationException extends RuntimeException {
 
-    /**
-     * Creates a new {@code DatabaseOperationException} with the specified
+    /**     * Creates a new {@code DatabaseOperationException} with the specified
      * detail message and cause.
      *
      * @param message description of the database operation failure
