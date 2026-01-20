@@ -1,5 +1,6 @@
 package com.solveda.catalogueservice.service.impl;
 
+import com.solveda.catalogueservice.exception.CategoryAlreadyExistsException;
 import com.solveda.catalogueservice.exception.CategoryNotFoundException;
 import com.solveda.catalogueservice.exception.DatabaseOperationException;
 import com.solveda.catalogueservice.exception.InvalidCategoryException;
@@ -8,6 +9,7 @@ import com.solveda.catalogueservice.repository.CategoryRepository;
 import com.solveda.catalogueservice.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -80,9 +82,11 @@ public class CategoryServiceImpl implements CategoryService {
        ========================= */
     @Override
     @Transactional(readOnly = true)
-    public Optional<Category> getCategoryById(Long id) {
-        return categoryRepository.findById(id);
+    public Category getCategoryById(Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new CategoryNotFoundException("Category with ID " + id + " not found"));
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -96,14 +100,18 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.findByTitle(title);
     }
 
-
     /* =========================
        INTERNAL HELPER
        ========================= */
     private Category saveCategory(Category category, String operation) {
         try {
             return categoryRepository.save(category);
-        } catch (DataAccessException ex) {
+        }
+        catch (DataIntegrityViolationException ex) {
+            // Duplicate category (UNIQUE constraint violation)
+            throw new CategoryAlreadyExistsException(category.getTitle());
+        }
+        catch (DataAccessException ex) {
             throw new DatabaseOperationException(
                     "Error while " + operation + " category: " + category.getTitle(), ex);
         }

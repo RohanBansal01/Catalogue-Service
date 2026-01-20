@@ -15,7 +15,7 @@ public interface CategoryService {
 
     void deactivateCategory(Long id);
 
-    Optional<Category> getCategoryById(Long id);
+    Category getCategoryById(Long id);
 
     Optional<Category> getCategoryByTitle(String title);
 

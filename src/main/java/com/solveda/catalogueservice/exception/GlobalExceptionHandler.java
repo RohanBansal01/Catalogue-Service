@@ -70,6 +70,17 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage(), "INVALID_CATEGORY_DATA", "CategoryValidation");
     }
 
+
+    @ExceptionHandler(CategoryAlreadyExistsException.class)
+    public ResponseEntity<ResponseStructure<?>> handleCategoryAlreadyExists(CategoryAlreadyExistsException ex) {
+        return buildErrorResponse(
+                HttpStatus.CONFLICT,                // ✅ 409
+                ex.getMessage(),
+                "CATEGORY_ALREADY_EXISTS",
+                "CategoryService"
+        );
+    }
+
     // ===== Database exceptions =====
     @ExceptionHandler(DatabaseOperationException.class)
     public ResponseEntity<ResponseStructure<?>> handleDatabaseError(DatabaseOperationException ex) {
