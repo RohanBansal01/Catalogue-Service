@@ -20,608 +20,388 @@
 </p>
 
 
-> A clean and modular **Spring Boot microservice** for managing product catalogues — including **categories** and **products** — with standardized API responses, JPA integration, and centralized exception handling.
 
 ---
 
-## 📑 Table of Contents
-
-1. [Overview](#-overview)
-2. [Tech Stack](#-tech-stack)
-3. [Architecture Overview](#-architecture-overview)
-   * [Layer Responsibilities](#layer-responsibilities)
-4. [Folder Structure](#-folder-structure)
-5. [End-to-End Request Flow](#-end-to-end-request-flow)
-   * [Step-by-Step Flow](#-step-by-step-flow)
-   * [Summary Table](#-summary-table)
-6. [Entity Relationship](#-entity-relationship)
-7. [API Endpoints](#-api-endpoints)
-   * [Category APIs](#-category-apis)
-   * [Product APIs](#-product-apis)
-8. [Sample Payloads](#-sample-payloads)
-9. [Standardized Response Format](#-standardized-response-format)
-10. [Exception Handling](#-exception-handling)
-11. [Configuration](#-configuration)
-12. [How to Run Locally](#-how-to-run-locally)
-13. [Example Responses](#-example-responses)
-14. [Future Enhancements](#-future-enhancements)
-15. [Author](#-author)
-16. [License](#-license)
-
-
----
 ## 📘 Overview
 
-The **Catalogue Service** provides a set of RESTful APIs to manage **categories** and **products**.  
-It’s designed using **industry-standard best practices**, ensuring scalability, clean separation of concerns, and consistent response structures.
+The **Catalogue Service** manages:
 
-You can use it:
-- As a **standalone backend** for catalogue management, or  
-- As part of a **larger e-commerce microservice ecosystem**
+* 📂 Categories
+* 📦 Products
+* 📊 Inventory
+* 💰 Pricing
+* 📥 Bulk Import (JSON + File Upload)
+
+Designed using **clean architecture**, **DTO-based request/response**, **service layer separation**, and **QA-ready API structure**.
 
 ---
 
 ## ⚙️ Tech Stack
 
-
-
-
-| **Layer** | **Technology** |
-|------------|----------------|
-| Framework | Spring Boot 3.3.x (built on Spring Framework 6.2.x) |
-| Language | Java 21.0.8 2025-07-15 LTS |
-| ORM | Spring Data JPA (Hibernate ORM 6.x) |
-| Database | MySQL Community Server 8.0.44 (GPL) |
-| Validation | Jakarta Bean Validation 3.0 |
-| API Docs | Springdoc OpenAPI 2.8.12 (Swagger UI) |
-| Logging | SLF4J + Logback |
-| Utilities | Lombok |
-| Build Tool | Apache Maven|
+| Layer      | Technology                      |
+| ---------- | ------------------------------- |
+| Framework  | Spring Boot 3.3.x               |
+| Language   | Java 21 (LTS)                   |
+| ORM        | Spring Data JPA (Hibernate 6.x) |
+| Database   | MySQL 8.x                       |
+| Validation | Jakarta Bean Validation         |
+| API Docs   | Springdoc OpenAPI (Swagger UI)  |
+| Logging    | SLF4J + Logback                 |
+| Utilities  | Lombok                          |
+| Build Tool | Maven                           |
 
 ---
 
 ## 🧱 Architecture Overview
 
-The project follows a **multi-layered architecture** to promote modularity and maintainability:
+**Layered Architecture**
 
-
-<img width="844" height="304" alt="Architecture Flow" src="https://github.com/user-attachments/assets/0425003f-d7a0-486a-bf72-02949be0d1b4" />
-
-
-
-
----
-### **Layer Responsibilities**
-
-- **Controller:** Handles HTTP requests and builds structured responses  
-- **Service:** Implements core business logic  
-- **Repository:** Manages database interactions via JPA  
-- **Model:** Defines database entities  
-- **Payload:** Defines standardized API response & error formats  
-- **Exception:** Centralized exception handling for clean error reporting  
+* **Controller Layer** → REST APIs
+* **Service Layer** → Business logic
+* **Repository Layer** → Database operations
+* **Model Layer** → JPA entities
+* **DTO Layer** → Request/Response mapping
+* **Exception Layer** → Centralized exception handling
 
 ---
 
-## 📁 Folder Structure
+## 📁 Project Structure
 
 ```bash
-src/main/java/com/solveda/catalogueservice/
+src/main/java/com/solveda/catalogueservice
 │
 ├── controller/          # REST controllers
-├── service/             # Business logic layer
-│   └── impl/            # Concrete service implementations
-├── repository/          # Data access layer (JPA repositories)
-├── model/               # Entities (Category, Product)
-├── payload/             # Response & error structures
-├── exception/           # Custom exceptions + global handler
+├── service/             # Business logic interfaces
+│   └── impl/            # Service implementations
+├── repository/          # JPA repositories
+├── model/               # JPA entities
+├── dto/                 # Request/Response DTOs
+├── exception/           # Global exception handling
 └── CatalogueServiceApplication.java
-
-```
----
-
-
-## 🔄 End-to-End Request Flow
-
-This section explains how a request travels through the **Catalogue Service** —  
-from the client → all backend layers → to the database → and back as a structured JSON response.
-
----
-
-### 🧭 Step-by-Step Flow
-
-```
-Client (Frontend / Postman / API Gateway)
-│
-▼
-───────────────────────────────────────────────
-1️⃣ HTTP Request (e.g., GET /api/products/1)
-───────────────────────────────────────────────
-│
-▼
-┌───────────────────────────────┐
-│     DispatcherServlet         │
-│ (Spring Boot Front Controller)│
-│ Receives the request and maps │
-│ it to the correct controller  │
-└───────────────────────────────┘
-│
-▼
-───────────────────────────────────────────────
-2️⃣ Controller Layer
-───────────────────────────────────────────────
-```
-📦 **Package:** `controller`
-
-* Contains `@RestController` classes (e.g. `ProductController`)
-* Validates input payloads
-* Calls corresponding Service layer
-* Wraps responses using `ResponseStructure<T>`
-
-Example:
-`ProductController → getProductById(Long id)`
-```bash
-│
-▼
-```
-```
-───────────────────────────────────────────────
-3️⃣ Service Layer
-───────────────────────────────────────────────
-```
-📦 **Package:** `service`
-
-* Contains business logic
-* Validates data consistency
-* Converts entities to DTOs
-* Handles domain rules
-* Interacts with repository
-
-Example:
-`ProductService → fetches product by ID`
-If not found → throws `ProductNotFoundException`
-```bash
-│
-▼
-```
-```
-───────────────────────────────────────────────
-4️⃣ Repository Layer
-───────────────────────────────────────────────
-```
-📦 **Package:** `repository`
-
-* Extends `JpaRepository`
-* Handles DB operations
-* Uses Spring Data JPA
-* Talks to MySQL through Hibernate ORM
-
-Example:
-`ProductRepository.findById(id)`
-```bash
-│
-▼
-```
-```
-───────────────────────────────────────────────
-5️⃣ Model Layer
-───────────────────────────────────────────────
-```
-📦 **Package:** `model`
-
-* Defines database entities (`Category`, `Product`)
-* Mapped with JPA annotations
-* Represents actual DB tables
-
-Example:
-`Product entity ↔ product table`
-`Category entity ↔ category table`
-```bash
-│
-▼
-```
-```
-───────────────────────────────────────────────
-6️⃣ Data Fetched & Transformed
-───────────────────────────────────────────────
-```
-📦 **Service Layer**
-
-* Receives Entity object from Repository
-* Maps Entity → Response DTO
-* Removes unnecessary fields
-* Prepares frontend-ready data
-
-Example:
-`Product Entity → ProductResponse DTO`
-(Only id, name, price, category shown)
-```bash
-│
-▼
-```
-```
-───────────────────────────────────────────────
-7️⃣ Payload Layer
-───────────────────────────────────────────────
-```
-📦 **Package:** `payload`
-
-* Defines reusable structures like `ResponseStructure<T>` and `ErrorStructure`
-* Ensures consistent API responses across endpoints
-
-Example:
-
-```json
-{
-    "status": "success",
-    "data": {
-        "id": 1,
-        "name": "MacBook Pro 16\" (M4 Max, Space Black)",
-        "description": "Apple M4 Max chip with 14-core CPU, 32-core GPU, and 16-core Neural Engine. 36GB unified memory, 1TB SSD storage, Liquid Retina XDR display (16.2-inch). Includes 140W USB-C Power Adapter and multiple Thunderbolt 5 ports.",
-        "price": 299900.0,
-        "stockQuantity": 25,
-        "sku": "MBP16-M4MAX-1TB-SB",
-        "active": true,
-        "createdAt": "2025-10-29T13:42:51.502147",
-        "updatedAt": "2025-10-29T13:42:51.502147",
-        "category": {
-            "id": 1,
-            "title": null,
-            "description": null,
-            "createdAt": null,
-            "updatedAt": null,
-            "products": []
-        }
-    },
-    "error": null
-}
-
-```
-
-```bash
-    │
-    ▼
-```
-```
-───────────────────────────────────────────────
-8️⃣ Exception Layer (if any error occurs)
-───────────────────────────────────────────────
-```
-📦 **Package:** `exception`
-
-* Contains custom exceptions (`ProductNotFoundException`)
-* GlobalExceptionHandler catches all runtime errors
-* Converts them into standardized error responses
-
-Example:
-
-```json
-{
-    "status": "error",
-    "data": null,
-    "error": {
-        "errorCode": "PRODUCT_NOT_FOUND",
-        "errorMessage": "Product with ID 2 not found",
-        "errorSource": "ProductService"
-    }
-}
-```
-
-```
-    │
-    ▼
-```
-```
-───────────────────────────────────────────────
-9️⃣ Response Sent Back to Client
-───────────────────────────────────────────────
-```
-Client receives a clean, structured JSON
-ready to be rendered on the frontend.
-
-
-
-
----
-
-### 🧩 Summary Table
-
-| Stage | Package | Purpose |
-|--------|----------|----------|
-| 1️⃣ | **controller** | Handles HTTP requests, builds responses |
-| 2️⃣ | **service** | Contains business logic, validation, mapping |
-| 3️⃣ | **repository** | Interacts with DB using JPA |
-| 4️⃣ | **model** | Defines database entities |
-| 5️⃣ | **payload** | Standard response & error wrappers |
-| 6️⃣ | **exception** | Handles and formats all application errors |
-
----
-
----
-
-## 🧩 Entity Relationship
-
-**Category ↔ Product → One-to-Many Relationship**
-
-- A **Category** can contain multiple **Products**
-- Each **Product** belongs to exactly one **Category**
-
----
-
-## 📚 API Endpoints
-
-### 🔹 Category APIs
-
-| Method | Endpoint | Description |
-|--------|-----------|-------------|
-| `POST` | `/api/categories` | Create a new category |
-| `GET` | `/api/categories` | Get all categories |
-| `GET` | `/api/categories/{id}` | Get category by ID |
-| `GET` | `/api/categories/title/{title}` | Get category by title |
-| `PUT` | `/api/categories/{id}` | Update existing category |
-| `DELETE` | `/api/categories/{id}` | Delete category by ID |
-
----
-
-### 🔹 Product APIs
-
-| Method | Endpoint | Description |
-|--------|-----------|-------------|
-| `POST` | `/api/products` | Create a new product |
-| `GET` | `/api/products` | Get all products |
-| `GET` | `/api/products/{id}` | Get product by ID |
-| `GET` | `/api/products/sku/{sku}` | Get product by SKU |
-| `PUT` | `/api/products/{id}` | Update existing product |
-| `DELETE` | `/api/products/{id}` | Delete product by ID |
-
----
-
-## 🧾 Sample Payloads
-
-### ➕ Create Category
-```json
-{
-  "title": "Electronics",
-  "description": "All electronic gadgets and accessories"
-}
-````
-
-### ➕ Create Product
-
-```json
-
-{
-  "name": "MacBook Pro 16\" (M4 Max, Space Black)",
-  "description": "Apple M4 Max chip with 14-core CPU, 32-core GPU, and 16-core Neural Engine. 36GB unified memory, 1TB SSD storage, Liquid Retina XDR display (16.2-inch). Includes 140W USB-C Power Adapter and multiple Thunderbolt 5 ports.",
-  "price": 299900.00,
-  "stockQuantity": 25,
-  "sku": "MBP16-M4MAX-1TB-SB",
-  "active": true,
-  "category": {
-    "id": 1
-  }
-}
 ```
 
 ---
 
-## 🧱 Standardized Response Format
+## 🔄 Request Flow
 
-All API responses follow a unified structure using `ResponseStructure<T>`.
+1. Client → Controller
+2. Controller → Service
+3. Service → Repository
+4. Repository → Database
+5. Database → Entity
+6. Entity → DTO
+7. DTO → HTTP Response
+8. Errors → GlobalExceptionHandler
 
-### ✅ Success Example
+---
 
-```json
+# 📚 API Endpoints (Controller Aligned)
 
-{
-    "status": "success",
-    "data": {
-        "id": 2,
-        "title": "Fashion",
-        "description": "Clothing and accessories",
-        "createdAt": "2025-10-29T13:01:35.910691",
-        "updatedAt": "2025-10-29T13:01:35.910691",
-        "products": []
-    },
-    "error": null
-}
+---
+
+# 📥 Bulk Import APIs
+
+### Bulk Import (JSON)
+
+```
+POST /bulk/import-json
 ```
 
-### ❌ Error Example
+### Bulk Import (File Upload)
 
-```json
-{
-  "status": "error",
-  "data": null,
-  "error": {
-    "errorCode": "PRODUCT_NOT_FOUND",
-    "errorMessage": "Product with ID 101 not found",
-    "errorSource": "ProductService"
-  }
-}
+```
+POST /bulk/import-file
 ```
 
 ---
 
-## 🚨 Exception Handling
+# 📂 Category APIs
 
-Centralized exception handling ensures consistent and readable error messages.
-All exceptions are managed via `GlobalExceptionHandler`.
+### Create Category
 
-| **Exception Class**          | **Description**                            |
-| ---------------------------- | ------------------------------------------ |
-| `CategoryNotFoundException`  | Thrown when a category does not exist      |
-| `ProductNotFoundException`   | Thrown when a product does not exist       |
-| `InvalidCategoryException`   | Thrown for invalid category input          |
-| `InvalidProductException`    | Thrown for invalid product input           |
-| `DatabaseOperationException` | Handles database-level failures            |
-| `GlobalExceptionHandler`     | Converts all exceptions into API responses |
+```
+POST /api/categories
+```
+
+### Update Category
+
+```
+PUT /api/categories/{id}
+```
+
+### Activate Category
+
+```
+POST /api/categories/{id}/activate
+```
+
+### Deactivate Category
+
+```
+POST /api/categories/{id}/deactivate
+```
+
+### Get Category By ID
+
+```
+GET /api/categories/{id}
+```
+
+### Get All Active Categories
+
+```
+GET /api/categories
+```
 
 ---
 
-## ⚙️ Configuration
+# 📦 Product APIs
 
-**`src/main/resources/application.properties`**
+### Create Product
+
+```
+POST /products
+```
+
+### Update Product
+
+```
+PUT /products/{id}
+```
+
+### Activate Product
+
+```
+POST /products/{id}/activate
+```
+
+### Deactivate Product
+
+```
+POST /products/{id}/deactivate
+```
+
+### Get Product By ID
+
+```
+GET /products/{id}
+```
+
+### Get All Active Products
+
+```
+GET /products
+```
+
+### Get Products By Category
+
+```
+GET /products/category/{categoryId}
+```
+
+---
+
+# 📊 Inventory APIs
+
+### Create Inventory
+
+```
+POST /inventory
+```
+
+### Reserve Stock
+
+```
+POST /inventory/{productId}/reserve?quantity=10
+```
+
+### Release Stock
+
+```
+POST /inventory/{productId}/release?quantity=5
+```
+
+### Clear Reservations
+
+```
+POST /inventory/{productId}/clear
+```
+
+### Get Inventory
+
+```
+GET /inventory/{productId}
+```
+
+---
+
+# 💰 Price APIs
+
+### Create Price
+
+```
+POST /prices
+```
+
+### Change Price
+
+```
+POST /prices/{priceId}/change?amount=199.99
+```
+
+### Expire Price
+
+```
+POST /prices/{priceId}/expire
+```
+
+### Get Price By ID
+
+```
+GET /prices/{priceId}
+```
+
+### Get Active Prices By Product
+
+```
+GET /prices/product/{productId}
+```
+
+---
+
+# 🧪 API Testing Strategy (QA Ready)
+
+👉 **Every API must follow this testing template**
+
+```
+# API Name: ________________________
+# Endpoint:  ________________________
+# Method:    ________________________
+```
+
+---
+
+## 1. Functional Tests (Happy Path)
+
+* [ ] Valid request returns correct success response
+* [ ] Optional fields handled correctly
+* [ ] Response structure matches DTO
+* [ ] Correct status code (200 / 201 / 204)
+* [ ] Database entry created/updated correctly
+
+---
+
+## 2. Input Validation Tests
+
+* [ ] Missing required fields
+* [ ] Empty string ("")
+* [ ] Wrong data types
+* [ ] Field length overflow
+* [ ] Invalid formats
+* [ ] Null values
+* [ ] Extra unknown fields
+
+---
+
+## 3. Negative / Error Handling Tests
+
+* [ ] Duplicate entry → 409
+* [ ] Invalid JSON → 400
+* [ ] Resource not found → 404
+* [ ] Business rule violation
+* [ ] Database constraint failure
+
+> 🔐 Auth tests (401 / 403) will be added after Spring Security implementation
+
+---
+
+## 4. Edge / Extreme Cases
+
+* [ ] Boundary values
+* [ ] Special characters
+* [ ] Whitespaces-only
+* [ ] Large payload
+* [ ] High-frequency requests
+
+---
+
+## 5. Integration Checks
+
+* [ ] Category → Product relation valid
+* [ ] Product → Inventory relation valid
+* [ ] Product → Price relation valid
+* [ ] Activation / Deactivation propagation
+* [ ] Status consistency
+* [ ] Response contract match
+
+---
+
+## 6. Post-Testing Confirmation
+
+* [ ] Bug fixed and re-tested
+* [ ] Test cases added to Postman
+* [ ] Backend ready for QA / UAT
+
+---
+
+# ⚙️ Configuration
+
+`application.properties`
 
 ```properties
-# Application Configuration
 spring.application.name=catalogue-service
 
-# Database Configuration
-spring.datasource.url=jdbc:mysql://localhost:3306/<your databasename>?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-spring.datasource.username=<your username>
-spring.datasource.password=<your password>
+spring.datasource.url=jdbc:mysql://localhost:3306/<db_name>
+spring.datasource.username=<username>
+spring.datasource.password=<password>
 
-# JPA / Hibernate Configuration
-# Keeps existing tables and updates schema safely
 spring.jpa.hibernate.ddl-auto=update
-# Shows SQL queries in console
 spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 
-# Swagger / OpenAPI Configuration
 springdoc.swagger-ui.path=/swagger-ui.html
-springdoc.api-docs.enabled=true
-springdoc.swagger-ui.enabled=true
-
-# Logging SQL bind parameters (helpful for debugging)
-logging.level.org.hibernate.type.descriptor.sql.BasicBinder=TRACE
-# Show executed SQL statements (optional for debugging)
-logging.level.org.hibernate.SQL=DEBUG
-
-management.endpoints.web.exposure.include=health,info
-
-
 ```
 
 ---
 
-## 🧭 How to Run Locally
-
-### 1️⃣ Clone the Repository
+# ▶️ Run Locally
 
 ```bash
 git clone https://github.com/your-username/catalogue-service.git
 cd catalogue-service
-```
-
-### 2️⃣ Configure Database
-
-Make sure MySQL is running locally and update credentials in `application.properties`.
-
-### 3️⃣ Build and Run
-
-```bash
 mvn clean install
 mvn spring-boot:run
 ```
-💻 Alternatively, open the project in IntelliJ IDEA, navigate to
-CatalogueServiceApplication.java, and simply click ▶ Run to start the application.
 
-### 4️⃣ Access the Application
-
-* Base URL: [http://localhost:8080/api](http://localhost:8080/api)
-* Swagger UI: [http://localhost:8080/swagger-ui/index.html#/](http://localhost:8080/swagger-ui/index.html#/)
-
+* Base URL → `http://localhost:8080`
+* Swagger UI → `http://localhost:8080/swagger-ui/index.html`
 
 ---
 
-## 🧪 Example Responses
+# 🚀 Future Enhancements
 
-### ✅ Get Category by ID
-
-**Request:**
-
-```
-GET /api/categories/1
-```
-
-**Response:**
-
-```json
-{
-    "status": "success",
-    "data": {
-        "id": 1,
-        "title": "Electronics",
-        "description": "All electronic gadgets and accessories",
-        "createdAt": "2025-10-27T11:27:03.200939",
-        "updatedAt": "2025-10-27T11:27:03.200939",
-        "products": [
-            {
-                "id": 1,
-                "name": "MacBook Pro 16\" (M4 Max, Space Black)",
-                "description": "Apple M4 Max chip with 14-core CPU, 32-core GPU, and 16-core Neural Engine. 36GB unified memory, 1TB SSD storage, Liquid Retina XDR display (16.2-inch). Includes 140W USB-C Power Adapter and multiple Thunderbolt 5 ports.",
-                "price": 299900.0,
-                "stockQuantity": 25,
-                "sku": "MBP16-M4MAX-1TB-SB",
-                "active": true,
-                "createdAt": "2025-10-29T13:42:51.502147",
-                "updatedAt": "2025-10-29T13:42:51.502147"
-            }
-        ]
-    },
-    "error": null
-}
-```
-
-### ❌ Product Not Found
-
-**Request:**
-
-```
-GET /api/products/99
-```
-
-**Response:**
-
-```json
-{
-    "status": "error",
-    "data": null,
-    "error": {
-        "errorCode": "PRODUCT_NOT_FOUND",
-        "errorMessage": "Product with ID 99 not found",
-        "errorSource": "ProductService"
-    }
-}
-```
+* 🔐 Spring Security + JWT
+* 🐳 Docker + Docker Compose
+* ☸️ Kubernetes deployment
+* 📦 API Gateway integration
+* 📊 Pagination & filtering
+* ⚡ Redis caching
+* 📜 Audit logs
+* 📈 Monitoring (Prometheus + Grafana)
 
 ---
 
-## 🚀 Future Enhancements
-
-* ⬜ JWT-based authentication & role-based access control
-* ⬜ Docker & containerized deployment
-* ⬜ Pagination & filtering for product APIs
-* ⬜ Redis caching for frequently accessed data
-* ⬜ Integration with API Gateway / Config Server
-
----
-
-## 👨‍💻 Author
+# 👨‍💻 Author
 
 **Rohan Bansal**
-📧 **[rohanbansalcse@gmail.com](mailto:rohanbansalcse@gmail.com)**
-
+📧 [rohanbansalcse@gmail.com](mailto:rohanbansalcse@gmail.com)
 
 ---
 
-## 🪪 License
+# 🪪 License
 
-This project is licensed under the **MIT License**.
-You are free to use, modify, and distribute with proper attribution.
+MIT License
 
+> *Production-grade APIs are built with clean code, strong testing, and clear contracts.*
 
-
-> 💡 *“Clean code and predictable APIs are the foundation of scalable systems.”*
-
-
-
-
-
-
-
-
-
-
+---
