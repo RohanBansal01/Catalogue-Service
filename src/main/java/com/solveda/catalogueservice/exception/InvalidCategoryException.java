@@ -13,7 +13,7 @@ public class InvalidCategoryException extends RuntimeException {
     /**
      * Constructs a new {@code InvalidCategoryException} with the specified detail message.
      *
-     * @param message the detail message describing the validation failure
+     * @param message description of the validation failure
      */
     public InvalidCategoryException(String message) {
         super(message);

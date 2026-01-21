@@ -1,15 +1,14 @@
 package com.solveda.catalogueservice.exception;
 
 /**
- * Thrown when a database operation fails due to connectivity issues,
+ * Exception thrown when a database operation fails due to connectivity issues,
  * query errors, or other unexpected persistence failures.
- * <p>
- * Typically raised when interacting with the database layer to wrap
- * low-level {@link java.sql.SQLException} or {@link org.springframework.dao.DataAccessException}
- * exceptions.
- * </p>
  *
- * <p><b>Example:</b></p>
+ * <p>This exception is typically used to wrap low-level {@link java.sql.SQLException}
+ * or {@link org.springframework.dao.DataAccessException} when interacting with
+ * the persistence layer.</p>
+ *
+ * <p><b>Example usage:</b></p>
  * <pre>{@code
  * try {
  *     productRepository.save(product);
@@ -22,11 +21,12 @@ package com.solveda.catalogueservice.exception;
  */
 public class DatabaseOperationException extends RuntimeException {
 
-    /**     * Creates a new {@code DatabaseOperationException} with the specified
+    /**
+     * Constructs a new {@code DatabaseOperationException} with the specified
      * detail message and cause.
      *
-     * @param message description of the database operation failure
-     * @param cause the underlying cause of the failure
+     * @param message descriptive message explaining the failure
+     * @param cause the underlying exception that triggered this failure
      */
     public DatabaseOperationException(String message, Throwable cause) {
         super(message, cause);

@@ -16,9 +16,24 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Implementation of {@link CategoryService} that manages product categories.
+ * <p>
+ * Responsibilities:
+ * <ul>
+ *     <li>Create, update, activate, and deactivate categories.</li>
+ *     <li>Retrieve categories by ID or title, or fetch all active categories.</li>
+ *     <li>Handles database operations with proper exception handling.</li>
+ * </ul>
+ * </p>
+ * <p>
+ * All write operations are transactional. Read operations are marked
+ * {@link Transactional#readOnly()} for optimized performance.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
-@Transactional // Default for write operations
+@Transactional
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
@@ -26,6 +41,17 @@ public class CategoryServiceImpl implements CategoryService {
     /* =========================
        CREATE
        ========================= */
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Creates a new category with the given title and description.
+     * </p>
+     *
+     * @throws InvalidCategoryException       if validation fails
+     * @throws CategoryAlreadyExistsException if a category with the same title exists
+     * @throws DatabaseOperationException     if saving to database fails
+     */
     @Override
     public Category createCategory(String title, String description) {
         Category category;
@@ -34,13 +60,23 @@ public class CategoryServiceImpl implements CategoryService {
         } catch (IllegalArgumentException ex) {
             throw new InvalidCategoryException(ex.getMessage());
         }
-
         return saveCategory(category, "creating");
     }
 
     /* =========================
        UPDATE
        ========================= */
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Updates an existing category's title and description.
+     * </p>
+     *
+     * @throws CategoryNotFoundException   if category is not found
+     * @throws InvalidCategoryException    if validation fails
+     * @throws DatabaseOperationException  if saving to database fails
+     */
     @Override
     public Category updateCategory(Long id, String newTitle, String newDescription) {
         Category category = categoryRepository.findById(id)
@@ -59,20 +95,37 @@ public class CategoryServiceImpl implements CategoryService {
     /* =========================
        ACTIVATE / DEACTIVATE
        ========================= */
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Activates the specified category.
+     * </p>
+     *
+     * @throws CategoryNotFoundException  if category is not found
+     * @throws DatabaseOperationException if saving to database fails
+     */
     @Override
     public void activateCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotFoundException("Category with ID " + id + " not found"));
-
         category.activate();
         saveCategory(category, "activating");
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Deactivates the specified category.
+     * </p>
+     *
+     * @throws CategoryNotFoundException  if category is not found
+     * @throws DatabaseOperationException if saving to database fails
+     */
     @Override
     public void deactivateCategory(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new CategoryNotFoundException("Category with ID " + id + " not found"));
-
         category.deactivate();
         saveCategory(category, "deactivating");
     }
@@ -80,6 +133,10 @@ public class CategoryServiceImpl implements CategoryService {
     /* =========================
        READ METHODS
        ========================= */
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional(readOnly = true)
     public Category getCategoryById(Long id) {
@@ -87,13 +144,18 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new CategoryNotFoundException("Category with ID " + id + " not found"));
     }
 
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional(readOnly = true)
     public List<Category> getAllActiveCategories() {
         return categoryRepository.findByActiveTrue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional<Category> getCategoryByTitle(String title) {
@@ -103,15 +165,22 @@ public class CategoryServiceImpl implements CategoryService {
     /* =========================
        INTERNAL HELPER
        ========================= */
+
+    /**
+     * Saves a category to the database with proper exception handling.
+     *
+     * @param category  category to save
+     * @param operation description of the operation (creating, updating, activating, deactivating)
+     * @return saved {@link Category}
+     * @throws CategoryAlreadyExistsException if duplicate category exists
+     * @throws DatabaseOperationException     if save fails
+     */
     private Category saveCategory(Category category, String operation) {
         try {
             return categoryRepository.save(category);
-        }
-        catch (DataIntegrityViolationException ex) {
-            // Duplicate category (UNIQUE constraint violation)
+        } catch (DataIntegrityViolationException ex) {
             throw new CategoryAlreadyExistsException(category.getTitle());
-        }
-        catch (DataAccessException ex) {
+        } catch (DataAccessException ex) {
             throw new DatabaseOperationException(
                     "Error while " + operation + " category: " + category.getTitle(), ex);
         }
