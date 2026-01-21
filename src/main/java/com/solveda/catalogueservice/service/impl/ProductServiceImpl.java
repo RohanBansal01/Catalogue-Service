@@ -17,6 +17,21 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+/**
+ * Implementation of {@link ProductService} that manages products in the system.
+ * <p>
+ * Responsibilities:
+ * <ul>
+ *     <li>Create, update, activate, and deactivate products.</li>
+ *     <li>Retrieve products by ID, category, or name/category combination.</li>
+ *     <li>Handles database operations with proper exception handling and logging.</li>
+ * </ul>
+ * </p>
+ * <p>
+ * All write operations are transactional. Read operations are marked
+ * {@link Transactional#readOnly()} for optimized performance.
+ * </p>
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -28,10 +43,19 @@ public class ProductServiceImpl implements ProductService {
     /* =========================
        CREATE
        ========================= */
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Generates a temporary SKU and default price/stock. Validates product creation
+     * and persists it to the database.
+     * </p>
+     *
+     * @throws InvalidProductException    if validation fails
+     * @throws DatabaseOperationException if database save fails
+     */
     @Override
     public Product createProduct(String name, String description, Long categoryId) {
-
-        // ✅ TEMP defaults (safe + production acceptable)
         BigDecimal price = BigDecimal.ZERO;
         String sku = generateSku(name);
         Integer stockQuantity = 0;
@@ -56,6 +80,18 @@ public class ProductServiceImpl implements ProductService {
     /* =========================
        UPDATE
        ========================= */
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Updates product name, description, and category.
+     * Throws {@link ProductNotFoundException} if the product does not exist.
+     * </p>
+     *
+     * @throws InvalidProductException    if validation fails
+     * @throws ProductNotFoundException   if product is not found
+     * @throws DatabaseOperationException if database save fails
+     */
     @Override
     public Product updateProduct(Long id, String newName, String newDescription, Long newCategoryId) {
         Product product = productRepository.findById(id)
@@ -75,20 +111,37 @@ public class ProductServiceImpl implements ProductService {
     /* =========================
        ACTIVATE / DEACTIVATE
        ========================= */
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Activates a product and persists the change.
+     * </p>
+     *
+     * @throws ProductNotFoundException   if product is not found
+     * @throws DatabaseOperationException if database save fails
+     */
     @Override
     public void activateProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Product with ID " + id + " not found"));
-
         product.activate();
         saveProduct(product, "activating");
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Deactivates a product and persists the change.
+     * </p>
+     *
+     * @throws ProductNotFoundException   if product is not found
+     * @throws DatabaseOperationException if database save fails
+     */
     @Override
     public void deactivateProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Product with ID " + id + " not found"));
-
         product.deactivate();
         saveProduct(product, "deactivating");
     }
@@ -96,24 +149,37 @@ public class ProductServiceImpl implements ProductService {
     /* =========================
        READ
        ========================= */
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional<Product> getProductById(Long id) {
         return productRepository.findById(id);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional(readOnly = true)
     public List<Product> getAllActiveProducts() {
         return productRepository.findByActiveTrue();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional(readOnly = true)
     public List<Product> getProductsByCategory(Long categoryId) {
         return productRepository.findByCategoryId(categoryId);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Transactional(readOnly = true)
     public Optional<Product> getProductByNameAndCategory(String name, Long categoryId) {
@@ -124,6 +190,14 @@ public class ProductServiceImpl implements ProductService {
        INTERNAL HELPERS
        ========================= */
 
+    /**
+     * Saves a product to the database with logging and exception handling.
+     *
+     * @param product   product to save
+     * @param operation description of the operation (creating/updating/etc.)
+     * @return saved product
+     * @throws DatabaseOperationException if database save fails
+     */
     private Product saveProduct(Product product, String operation) {
         try {
             log.info("Saving product: name={}, categoryId={}", product.getName(), product.getCategoryId());
@@ -136,6 +210,12 @@ public class ProductServiceImpl implements ProductService {
         }
     }
 
+    /**
+     * Generates a SKU for the product using its name and a random UUID suffix.
+     *
+     * @param name product name
+     * @return generated SKU
+     */
     private String generateSku(String name) {
         return name.replaceAll("\\s+", "-").toUpperCase()
                 + "-" + UUID.randomUUID().toString().substring(0, 6);

@@ -27,7 +27,6 @@ import lombok.NoArgsConstructor;
  * </p>
  *
  * @see com.solveda.catalogueservice.payload.ResponseStructure
- *
  */
 @Data
 @Builder
