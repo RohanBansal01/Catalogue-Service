@@ -121,10 +121,8 @@ The **Catalogue Service** exposes REST APIs to manage an e-commerce catalogue wi
 Controller → Service → Repository → Database
                  ↓
                DTOs
-<img width="8192" height="4062" alt="Mermaid Diagram" src="https://github.com/user-attachments/assets/0d458b1f-5604-4a54-aa42-bdade46b2ceb" />
-
-
 ```
+<img width="8192" height="4062" alt="Mermaid Diagram" src="https://github.com/user-attachments/assets/0d458b1f-5604-4a54-aa42-bdade46b2ceb" />
 
 **Domain Model**
 
@@ -220,9 +218,8 @@ Category → Product → ProductPrice
                ↓
         ProductInventory
 
-<img width="656" height="936" alt="Small Normalised DB" src="https://github.com/user-attachments/assets/42516827-a9e9-4845-b454-f8a4ca650e77" />
-
 ```
+<img width="656" height="936" alt="Small Normalised DB" src="https://github.com/user-attachments/assets/42516827-a9e9-4845-b454-f8a4ca650e77" />
 
 Tables:
 
@@ -235,16 +232,46 @@ Tables:
 
 ## Testing
 
+### Current Testing Approach
+
+The application is currently tested **manually using Postman**, following a **structured checklist for every API endpoint**.
+
+Testing covers:
+
+* Functional (happy path) scenarios
+* Input validation and boundary cases
+* Negative and error handling
+* Edge cases and extreme inputs
+* Cross-entity integration behavior
+
+This ensures API correctness, stability, and contract compliance before automation.
+
+### Manual Test Coverage
+
+* HTTP status codes: 200 / 201 / 400 / 401 / 403 / 404 / 409
+* Invalid, missing, null, and oversized inputs
+* Response structure consistency
+* Database state verification
+* Exception handling and error mapping
+
+All tests are executed **per controller and per endpoint** using Postman collections.
+
+---
+
+### Automated Testing (Planned)
+
 ```bash
 mvn test
 ```
 
-* Unit tests (Service & Domain)
-* Integration tests (Repository & Controller)
-* Target coverage: **80%+**
+Planned automation includes:
+
+* Unit tests (Service & Domain layers)
+* Integration tests (Repository & Controller layers)
+
+Target coverage: **80%+**
 
 ---
-
 ## Configuration
 
 ```properties
@@ -281,10 +308,10 @@ management.endpoints.web.exposure.include=health,info
 
 ## Author
 
-**Rohan Bansal**
-Email: [rohanbansalcse@gmail.com](mailto:rohanbansalcse@gmail.com)
-GitHub: @RohanBansal01
-LinkedIn: Rohan Bansal
+**Rohan Bansal**<br>
+Email: [rohanbansalcse@gmail.com](mailto:rohanbansalcse@gmail.com)<br>
+GitHub: @RohanBansal01<br>
+LinkedIn: [Rohan Bansal](https://www.linkedin.com/in/rohan-likedin)
 
 ---
 
@@ -297,5 +324,6 @@ This project is licensed under the **MIT License**.
 ⭐ **If you find this project useful, please give it a star!**
 
 ---
+
 
 
