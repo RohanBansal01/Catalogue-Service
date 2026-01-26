@@ -101,17 +101,18 @@ The **Catalogue Service** exposes REST APIs to manage an e-commerce catalogue wi
 
 ## Tech Stack
 
-| Component  | Technology                  |
-| ---------- | --------------------------- |
-| Framework  | Spring Boot 3.5.6           |
-| Language   | Java 21 (LTS)               |
-| Database   | MySQL 8.x                   |
-| ORM        | Spring Data JPA (Hibernate) |
-| Validation | Jakarta Bean Validation     |
-| API Docs   | Springdoc OpenAPI           |
-| Monitoring | Spring Boot Actuator        |
-| Build Tool | Maven                       |
 
+| **Layer** | **Technology** |
+|------------|----------------|
+| Framework | Spring Boot 3.3.x (built on Spring Framework 6.2.x) |
+| Language | Java 21.0.8 2025-07-15 LTS |
+| ORM | Spring Data JPA (Hibernate ORM 6.x) |
+| Database | MySQL Community Server 8.0.44 (GPL) |
+| Validation | Jakarta Bean Validation 3.0 |
+| API Docs | Springdoc OpenAPI 2.8.12 (Swagger UI) |
+| Logging | SLF4J + Logback |
+| Utilities | Lombok |
+| Build Tool | Apache Maven|
 ---
 
 ## Architecture
@@ -120,6 +121,9 @@ The **Catalogue Service** exposes REST APIs to manage an e-commerce catalogue wi
 Controller → Service → Repository → Database
                  ↓
                DTOs
+<img width="8192" height="4062" alt="Mermaid Diagram" src="https://github.com/user-attachments/assets/0d458b1f-5604-4a54-aa42-bdade46b2ceb" />
+
+
 ```
 
 **Domain Model**
@@ -215,6 +219,9 @@ Example response:
 Category → Product → ProductPrice
                ↓
         ProductInventory
+
+<img width="656" height="936" alt="Small Normalised DB" src="https://github.com/user-attachments/assets/42516827-a9e9-4845-b454-f8a4ca650e77" />
+
 ```
 
 Tables:
@@ -291,18 +298,4 @@ This project is licensed under the **MIT License**.
 
 ---
 
-### Why this version is ideal
 
-* Looks **enterprise-grade**
-* Perfect for **recruiters + senior engineers**
-* No emojis = ATS / corporate friendly
-* Still clean and readable
-
-If you want next:
-
-* **Enterprise README version**
-* **Resume bullets from this project**
-* **System design explanation**
-* **Dockerized README**
-
-Just say 👍
