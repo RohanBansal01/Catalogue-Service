@@ -1,6 +1,8 @@
+
 <div align="center">
-  <h1>🛍️ Catalogue Service API</h1>
+  <h1>Catalogue Service API</h1>
 </div>
+
 <p align="center">
   <a href="https://spring.io/projects/spring-boot">
     <img src="https://img.shields.io/badge/Spring%20Boot-3.3.x-brightgreen" alt="Spring Boot" />
@@ -19,389 +21,310 @@
   </a>
 </p>
 
+---
 
+## Table of Contents
+
+* [Quick Summary](#quick-summary)
+* [Overview](#overview)
+* [Key Features](#key-features)
+
+  * [Architecture & Design](#architecture--design)
+  * [Data Integrity & Reliability](#data-integrity--reliability)
+  * [API & Observability](#api--observability)
+* [Tech Stack](#tech-stack)
+* [Architecture](#architecture)
+* [Quick Start](#quick-start)
+* [Access URLs](#access-urls)
+* [API Documentation (Swagger)](#api-documentation-swagger)
+* [Monitoring (Actuator)](#monitoring-actuator)
+* [Database Schema](#database-schema)
+* [Testing](#testing)
+* [Configuration](#configuration)
+* [Deployment](#deployment)
+* [Project Status](#project-status)
+* [Contributing](#contributing)
+* [Author](#author)
+* [License](#license)
 
 ---
 
-## 📘 Overview
+## Quick Summary
 
-The **Catalogue Service** manages:
-
-* 📂 Categories
-* 📦 Products
-* 📊 Inventory
-* 💰 Pricing
-* 📥 Bulk Import (JSON + File Upload)
-
-Designed using **clean architecture**, **DTO-based request/response**, **service layer separation**, and **QA-ready API structure**.
+* Designed using **Clean Architecture & DDD**
+* Supports **Categories, Products, Inventory, Pricing**
+* Uses **ACID transactions** and **global exception handling**
+* Fully documented APIs with **Swagger**
+* Health monitoring via **Spring Boot Actuator**
 
 ---
 
-## ⚙️ Tech Stack
+## Overview
 
-| Layer      | Technology                      |
-| ---------- | ------------------------------- |
-| Framework  | Spring Boot 3.3.x               |
-| Language   | Java 21 (LTS)                   |
-| ORM        | Spring Data JPA (Hibernate 6.x) |
-| Database   | MySQL 8.x                       |
-| Validation | Jakarta Bean Validation         |
-| API Docs   | Springdoc OpenAPI (Swagger UI)  |
-| Logging    | SLF4J + Logback                 |
-| Utilities  | Lombok                          |
-| Build Tool | Maven                           |
+The **Catalogue Service** exposes REST APIs to manage an e-commerce catalogue with a strong focus on **separation of concerns**, **transaction safety**, and **maintainable code**.
+
+### Core Capabilities
+
+* Category management
+* Product lifecycle (create, update, activate/deactivate)
+* Inventory management with reservation & release
+* Pricing with history tracking
+* Bulk import support
 
 ---
 
-## 🧱 Architecture Overview
+## Key Features
 
-**Layered Architecture**
+### Architecture & Design
 
-* **Controller Layer** → REST APIs
-* **Service Layer** → Business logic
-* **Repository Layer** → Database operations
-* **Model Layer** → JPA entities
-* **DTO Layer** → Request/Response mapping
-* **Exception Layer** → Centralized exception handling
+* Layered architecture (Controller → Service → Repository)
+* Domain-Driven Design (aggregate roots & value objects)
+* DTO-based API contracts
+* Factory methods for entity creation
+* Centralized exception handling
+
+### Data Integrity & Reliability
+
+* ACID transactions using `@Transactional`
+* Database constraints
+* Input validation with Jakarta Bean Validation
+* Idempotent bulk operations
+
+### API & Observability
+
+* OpenAPI 3.0 + Swagger UI
+* RESTful API design
+* Spring Boot Actuator for health monitoring
+* Structured logging with SLF4J
 
 ---
 
-## 📁 Project Structure
+## Tech Stack
+
+
+| **Layer** | **Technology** |
+|------------|----------------|
+| Framework | Spring Boot 3.3.x (built on Spring Framework 6.2.x) |
+| Language | Java 21.0.8 2025-07-15 LTS |
+| ORM | Spring Data JPA (Hibernate ORM 6.x) |
+| Database | MySQL Community Server 8.0.44 (GPL) |
+| Validation | Jakarta Bean Validation 3.0 |
+| API Docs | Springdoc OpenAPI 2.8.12 (Swagger UI) |
+| Logging | SLF4J + Logback |
+| Utilities | Lombok |
+| Build Tool | Apache Maven|
+---
+
+## Architecture
+
+```
+Controller → Service → Repository → Database
+                 ↓
+               DTOs
+```
+<img width="8192" height="4062" alt="Mermaid Diagram" src="https://github.com/user-attachments/assets/0d458b1f-5604-4a54-aa42-bdade46b2ceb" />
+
+**Domain Model**
+
+* Category
+* Product
+* ProductInventory
+* ProductPrice
+
+**Transaction Strategy**
+
+* Write operations: `@Transactional`
+* Read operations: `readOnly = true`
+
+---
+
+## Quick Start
+
+### Prerequisites
+
+* Java 21+
+* Maven 3.8+
+* MySQL 8+
+
+### Setup
 
 ```bash
-src/main/java/com/solveda/catalogueservice
-│
-├── controller/          # REST controllers
-├── service/             # Business logic interfaces
-│   └── impl/            # Service implementations
-├── repository/          # JPA repositories
-├── model/               # JPA entities
-├── dto/                 # Request/Response DTOs
-├── exception/           # Global exception handling
-└── CatalogueServiceApplication.java
+git clone https://github.com/RohanBansal01/Catalogue-Service.git
+cd Catalogue-Service
 ```
 
----
-
-## 🔄 Request Flow
-
-1. Client → Controller
-2. Controller → Service
-3. Service → Repository
-4. Repository → Database
-5. Database → Entity
-6. Entity → DTO
-7. DTO → HTTP Response
-8. Errors → GlobalExceptionHandler
-
----
-
-# 📚 API Endpoints (Controller Aligned)
-
----
-
-# 📥 Bulk Import APIs
-
-### Bulk Import (JSON)
-
-```
-POST /bulk/import-json
-```
-
-### Bulk Import (File Upload)
-
-```
-POST /bulk/import-file
-```
-
----
-
-# 📂 Category APIs
-
-### Create Category
-
-```
-POST /api/categories
-```
-
-### Update Category
-
-```
-PUT /api/categories/{id}
-```
-
-### Activate Category
-
-```
-POST /api/categories/{id}/activate
-```
-
-### Deactivate Category
-
-```
-POST /api/categories/{id}/deactivate
-```
-
-### Get Category By ID
-
-```
-GET /api/categories/{id}
-```
-
-### Get All Active Categories
-
-```
-GET /api/categories
-```
-
----
-
-# 📦 Product APIs
-
-### Create Product
-
-```
-POST /products
-```
-
-### Update Product
-
-```
-PUT /products/{id}
-```
-
-### Activate Product
-
-```
-POST /products/{id}/activate
-```
-
-### Deactivate Product
-
-```
-POST /products/{id}/deactivate
-```
-
-### Get Product By ID
-
-```
-GET /products/{id}
-```
-
-### Get All Active Products
-
-```
-GET /products
-```
-
-### Get Products By Category
-
-```
-GET /products/category/{categoryId}
-```
-
----
-
-# 📊 Inventory APIs
-
-### Create Inventory
-
-```
-POST /inventory
-```
-
-### Reserve Stock
-
-```
-POST /inventory/{productId}/reserve?quantity=10
-```
-
-### Release Stock
-
-```
-POST /inventory/{productId}/release?quantity=5
-```
-
-### Clear Reservations
-
-```
-POST /inventory/{productId}/clear
-```
-
-### Get Inventory
-
-```
-GET /inventory/{productId}
-```
-
----
-
-# 💰 Price APIs
-
-### Create Price
-
-```
-POST /prices
-```
-
-### Change Price
-
-```
-POST /prices/{priceId}/change?amount=199.99
-```
-
-### Expire Price
-
-```
-POST /prices/{priceId}/expire
-```
-
-### Get Price By ID
-
-```
-GET /prices/{priceId}
-```
-
-### Get Active Prices By Product
-
-```
-GET /prices/product/{productId}
-```
-
----
-
-# 🧪 API Testing Strategy (QA Ready)
-
-👉 **Every API must follow this testing template**
-
-```
-# API Name: ________________________
-# Endpoint:  ________________________
-# Method:    ________________________
-```
-
----
-
-## 1. Functional Tests (Happy Path)
-
-* [ ] Valid request returns correct success response
-* [ ] Optional fields handled correctly
-* [ ] Response structure matches DTO
-* [ ] Correct status code (200 / 201 / 204)
-* [ ] Database entry created/updated correctly
-
----
-
-## 2. Input Validation Tests
-
-* [ ] Missing required fields
-* [ ] Empty string ("")
-* [ ] Wrong data types
-* [ ] Field length overflow
-* [ ] Invalid formats
-* [ ] Null values
-* [ ] Extra unknown fields
-
----
-
-## 3. Negative / Error Handling Tests
-
-* [ ] Duplicate entry → 409
-* [ ] Invalid JSON → 400
-* [ ] Resource not found → 404
-* [ ] Business rule violation
-* [ ] Database constraint failure
-
-> 🔐 Auth tests (401 / 403) will be added after Spring Security implementation
-
----
-
-## 4. Edge / Extreme Cases
-
-* [ ] Boundary values
-* [ ] Special characters
-* [ ] Whitespaces-only
-* [ ] Large payload
-* [ ] High-frequency requests
-
----
-
-## 5. Integration Checks
-
-* [ ] Category → Product relation valid
-* [ ] Product → Inventory relation valid
-* [ ] Product → Price relation valid
-* [ ] Activation / Deactivation propagation
-* [ ] Status consistency
-* [ ] Response contract match
-
----
-
-## 6. Post-Testing Confirmation
-
-* [ ] Bug fixed and re-tested
-* [ ] Test cases added to Postman
-* [ ] Backend ready for QA / UAT
-
----
-
-# ⚙️ Configuration
-
-`application.properties`
+Configure database:
 
 ```properties
-spring.application.name=catalogue-service
-
-spring.datasource.url=jdbc:mysql://localhost:3306/<db_name>
-spring.datasource.username=<username>
-spring.datasource.password=<password>
-
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-
-springdoc.swagger-ui.path=/swagger-ui.html
+spring.datasource.url=jdbc:mysql://localhost:3306/catalogue_db
+spring.datasource.username=your_username
+spring.datasource.password=your_password
 ```
 
----
-
-# ▶️ Run Locally
+Run the application:
 
 ```bash
-git clone https://github.com/your-username/catalogue-service.git
-cd catalogue-service
 mvn clean install
 mvn spring-boot:run
 ```
 
-* Base URL → `http://localhost:8080`
-* Swagger UI → `http://localhost:8080/swagger-ui/index.html`
+---
+
+## Access URLs
+
+| Purpose      | URL                                                                                            |
+| ------------ | ---------------------------------------------------------------------------------------------- |
+| API Base     | [http://localhost:8080](http://localhost:8080)                                                 |
+| Swagger UI   | [http://localhost:8080/swagger-ui/index.html#/](http://localhost:8080/swagger-ui/index.html#/) |
+| Health Check | [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)                 |
 
 ---
 
-# 🚀 Future Enhancements
+## API Documentation (Swagger)
 
-* 🔐 Spring Security + JWT
-* 🐳 Docker + Docker Compose
-* ☸️ Kubernetes deployment
-* 📦 API Gateway integration
-* 📊 Pagination & filtering
-* ⚡ Redis caching
-* 📜 Audit logs
-* 📈 Monitoring (Prometheus + Grafana)
+Swagger UI provides **interactive API documentation**:
 
----
+[http://localhost:8080/swagger-ui/index.html#/](http://localhost:8080/swagger-ui/index.html#/)
 
-# 👨‍💻 Author
+Use it to:
 
-**Rohan Bansal**
-📧 [rohanbansalcse@gmail.com](mailto:rohanbansalcse@gmail.com)
+* Explore endpoints
+* View request/response schemas
+* Test APIs directly
 
 ---
 
-# 🪪 License
+## Monitoring (Actuator)
 
-MIT License
+Spring Boot Actuator exposes application health endpoints.
 
-> *Production-grade APIs are built with clean code, strong testing, and clear contracts.*
+* Health:
+  `http://localhost:8080/actuator/health`
+
+Example response:
+
+```json
+{
+  "status": "UP"
+}
+```
 
 ---
+
+## Database Schema
+
+```
+Category → Product → ProductPrice
+               ↓
+        ProductInventory
+
+```
+<img width="656" height="936" alt="Small Normalised DB" src="https://github.com/user-attachments/assets/42516827-a9e9-4845-b454-f8a4ca650e77" />
+
+Tables:
+
+* `categories`
+* `products`
+* `product_inventory`
+* `product_price`
+
+---
+
+## Testing
+
+### Current Testing Approach
+
+The application is currently tested **manually using Postman**, following a **structured checklist for every API endpoint**.
+
+Testing covers:
+
+* Functional (happy path) scenarios
+* Input validation and boundary cases
+* Negative and error handling
+* Edge cases and extreme inputs
+* Cross-entity integration behavior
+
+This ensures API correctness, stability, and contract compliance before automation.
+
+### Manual Test Coverage
+
+* HTTP status codes: 200 / 201 / 400 / 401 / 403 / 404 / 409
+* Invalid, missing, null, and oversized inputs
+* Response structure consistency
+* Database state verification
+* Exception handling and error mapping
+
+All tests are executed **per controller and per endpoint** using Postman collections.
+
+---
+
+### Automated Testing (Planned)
+
+```bash
+mvn test
+```
+
+Planned automation includes:
+
+* Unit tests (Service & Domain layers)
+* Integration tests (Repository & Controller layers)
+
+Target coverage: **80%+**
+
+---
+## Configuration
+
+```properties
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+springdoc.swagger-ui.path=/swagger-ui.html
+management.endpoints.web.exposure.include=health,info
+```
+
+---
+
+## Deployment
+
+* Local: `mvn spring-boot:run`
+* Docker & Kubernetes: Planned
+* Redis caching & Security: Planned
+
+---
+
+## Project Status
+
+**Version:** `0.0.1-SNAPSHOT`
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Open a Pull Request
+
+---
+
+## Author
+
+**Rohan Bansal**<br>
+Email: [rohanbansalcse@gmail.com](mailto:rohanbansalcse@gmail.com)<br>
+GitHub: [@RohanBansal01](https://github.com/RohanBansal01)<br>
+LinkedIn: [Rohan Bansal](https://www.linkedin.com/in/rohan-likedin)
+
+---
+
+## License
+
+This project is licensed under the **MIT License**.
+
+---
+
+⭐ **If you find this project useful, please give it a star!**
+
+---
+
+
+
+
