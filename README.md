@@ -122,7 +122,8 @@ Controller → Service → Repository → Database
                  ↓
                DTOs
 ```
-<img width="8192" height="4062" alt="Mermaid Diagram" src="https://github.com/user-attachments/assets/0d458b1f-5604-4a54-aa42-bdade46b2ceb" />
+<img width="929" height="461" alt="image" src="https://github.com/user-attachments/assets/0667f87a-3389-4f0e-97f7-59af8725d9f9" />
+
 
 **Domain Model**
 
@@ -324,6 +325,7 @@ This project is licensed under the **MIT License**.
 ⭐ **If you find this project useful, please give it a star!**
 
 ---
+
 
 
 
