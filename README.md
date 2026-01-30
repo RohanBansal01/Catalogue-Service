@@ -229,13 +229,6 @@ Category → Product → ProductPrice
                ↓
         ProductInventory
 
-### **Docker (Planned)**
-```dockerfile
-# Dockerfile coming soon
-FROM openjdk:21-jre-slim
-COPY target/catalogue-service-*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```
 <img width="656" height="936" alt="Small Normalised DB" src="https://github.com/user-attachments/assets/42516827-a9e9-4845-b454-f8a4ca650e77" />
 
@@ -342,6 +335,7 @@ This project is licensed under the **MIT License**.
 ⭐ **If you find this project useful, please give it a star!**
 
 ---
+
 
 
 
