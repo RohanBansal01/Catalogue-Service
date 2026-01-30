@@ -1,11 +1,12 @@
 
 <div align="center">
-  <h1>Catalogue Service API</h1>
+  <h1>🛍️ Catalogue Service API</h1>
+  <p><strong>A production-ready e-commerce catalogue management microservice</strong></p>
 </div>
 
 <p align="center">
   <a href="https://spring.io/projects/spring-boot">
-    <img src="https://img.shields.io/badge/Spring%20Boot-3.3.x-brightgreen" alt="Spring Boot" />
+    <img src="https://img.shields.io/badge/Spring%20Boot-3.5.6-brightgreen" alt="Spring Boot" />
   </a>
   &nbsp;
   <a href="https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html">
@@ -13,7 +14,11 @@
   </a>
   &nbsp;
   <a href="https://www.mysql.com/">
-    <img src="https://img.shields.io/badge/MySQL-8.0.44-orange" alt="MySQL" />
+    <img src="https://img.shields.io/badge/MySQL-8.x-orange" alt="MySQL" />
+  </a>
+  &nbsp;
+  <a href="https://springdoc.org/">
+    <img src="https://img.shields.io/badge/OpenAPI-3.0-green" alt="OpenAPI" />
   </a>
   &nbsp;
   <a href="LICENSE">
@@ -137,7 +142,9 @@ Controller → Service → Repository → Database
 * Write operations: `@Transactional`
 * Read operations: `readOnly = true`
 
----
+### **API Documentation**
+- **Interactive Docs**: [Swagger UI](http://localhost:8080/swagger-ui/index.html)
+- **OpenAPI Spec**: [OpenAPI JSON](http://localhost:8080/v3/api-docs)
 
 ## Quick Start
 
@@ -179,7 +186,10 @@ mvn spring-boot:run
 | Swagger UI   | [http://localhost:8080/swagger-ui/index.html#/](http://localhost:8080/swagger-ui/index.html#/) |
 | Health Check | [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)                 |
 
----
+### **Test Coverage**
+- **Target**: 80%+ code coverage
+- **Current**: Add more tests to improve coverage
+- **Tools**: JUnit 5, Mockito, TestContainers
 
 ## API Documentation (Swagger)
 
@@ -219,6 +229,13 @@ Category → Product → ProductPrice
                ↓
         ProductInventory
 
+### **Docker (Planned)**
+```dockerfile
+# Dockerfile coming soon
+FROM openjdk:21-jre-slim
+COPY target/catalogue-service-*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```
 <img width="656" height="936" alt="Small Normalised DB" src="https://github.com/user-attachments/assets/42516827-a9e9-4845-b454-f8a4ca650e77" />
 
@@ -305,7 +322,7 @@ management.endpoints.web.exposure.include=health,info
 3. Commit your changes
 4. Open a Pull Request
 
----
+Copyright (c) 2024 Rohan Bansal
 
 ## Author
 

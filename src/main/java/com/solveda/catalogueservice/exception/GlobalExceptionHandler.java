@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -171,5 +172,44 @@ public class GlobalExceptionHandler {
         logger.error("Unexpected error occurred: ", ex);
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error: " + ex.getMessage(),
                 "INTERNAL_ERROR", "GlobalExceptionHandler");
+    }
+    /**
+     * Test Case: POST_Create_Product_Invalid_CategoryId_Type_400
+     *
+     * <p>
+     * This test validates the behavior of the Create Product API when an invalid
+     * data type is provided for {@code categoryId}.
+     * </p>
+     *
+     * <p>
+     * The {@code categoryId} field is expected to be of type {@link java.lang.Long}.
+     * Supplying a non-numeric value (e.g., a String such as {@code "abc"}) causes
+     * a JSON deserialization failure before the request reaches the controller
+     * or validation layer.
+     * </p>
+     *
+     * <p>
+     * As a result, Spring throws a {@code HttpMessageNotReadableException}, which
+     * is intercepted by the {@code GlobalExceptionHandler}. Since the error occurs
+     * at the framework level during request parsing, business validation logic
+     * is not executed.
+     * </p>
+     *
+     * <p>
+     * This test ensures that such malformed requests are properly handled and
+     * a consistent error response is returned.
+     * </p>
+     */
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ResponseStructure<?>> handleInvalidJsonPayload(
+            HttpMessageNotReadableException ex) {
+
+        return buildErrorResponse(
+                HttpStatus.BAD_REQUEST,
+                "Invalid request payload or field type mismatch",
+                "INVALID_REQUEST",
+                "RequestDeserialization"
+        );
     }
 }

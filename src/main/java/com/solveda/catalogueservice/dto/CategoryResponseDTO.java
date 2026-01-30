@@ -13,12 +13,12 @@ package com.solveda.catalogueservice.dto;
  */
 public record CategoryResponseDTO(
 
-        /**
+        /*
          * The unique identifier of the category.
          */
         Long id,
 
-        /**
+        /*
          * The title of the category.
          */
         String title,

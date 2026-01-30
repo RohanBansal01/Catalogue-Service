@@ -1,0 +1,421 @@
+@startuml CatalogueServiceArchitecture
+' === VERTICAL + COMPACT ===
+top to bottom direction
+scale 0.5
+
+skinparam dpi 90
+skinparam shadowing false
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam Padding 4
+skinparam nodesep 15
+skinparam ranksep 22
+
+skinparam note {
+  MaxWidth 220
+}
+
+skinparam class {
+  BorderColor #2E86AB
+  BackgroundColor #FFFFFF
+  ArrowColor #2E86AB
+}
+
+skinparam package {
+  BorderColor #6C757D
+  BackgroundColor #F8F9FA
+}
+
+skinparam ArrowFontSize 10
+
+' ===== Title =====
+title Spring Boot Catalogue Service Architecture
+caption Production-ready microservice with DDD principles
+
+' Title and metadata
+title Spring Boot Catalogue Service Architecture
+caption Production-ready microservice with DDD principles
+
+' Package Definitions
+package "API Layer\n<<Controller>>" as Controllers {
+    class ProductController {
+        -ProductService productService
+        --
+        +POST /products create(ProductRequestDTO): ResponseEntity<ProductResponseDTO>
+        +PUT /products/{id} update(Long, ProductRequestDTO): ResponseEntity<ProductResponseDTO>
+        +POST /products/{id}/activate activate(Long): ResponseEntity<Void>
+        +POST /products/{id}/deactivate deactivate(Long): ResponseEntity<Void>
+        +GET /products/{id} getById(Long): ResponseEntity<ProductResponseDTO>
+        +GET /products getActive(): ResponseEntity<List<ProductResponseDTO>>
+        +GET /products/category/{categoryId} getByCategory(Long): ResponseEntity<List<ProductResponseDTO>>
+    }
+    
+    class PriceController {
+        -ProductPriceService priceService
+        --
+        +POST /prices create(PriceRequestDTO): ResponseEntity<PriceResponseDTO>
+        +POST /prices/{priceId}/change change(Long, String): ResponseEntity<Void>
+        +POST /prices/{priceId}/expire expire(Long): ResponseEntity<Void>
+        +GET /prices/{priceId} get(Long): ResponseEntity<PriceResponseDTO>
+        +GET /prices/product/{productId} getActive(Long): ResponseEntity<List<PriceResponseDTO>>
+    }
+    
+    class InventoryController {
+        -ProductInventoryService inventoryService
+        --
+        +POST /inventory create(InventoryRequestDTO): ResponseEntity<InventoryResponseDTO>
+        +POST /inventory/{productId}/reserve reserve(Long, int): ResponseEntity<Void>
+        +POST /inventory/{productId}/release release(Long, int): ResponseEntity<Void>
+        +POST /inventory/{productId}/clear clear(Long): ResponseEntity<Void>
+        +GET /inventory/{productId} get(Long): ResponseEntity<InventoryResponseDTO>
+    }
+    
+    class CategoryController {
+        -CategoryService categoryService
+        --
+        +POST /categories create(CategoryRequestDTO): ResponseEntity<CategoryResponseDTO>
+        +PUT /categories/{id} update(Long, CategoryRequestDTO): ResponseEntity<CategoryResponseDTO>
+        +POST /categories/{id}/activate activate(Long): ResponseEntity<Void>
+        +POST /categories/{id}/deactivate deactivate(Long): ResponseEntity<Void>
+        +GET /categories/{id} getById(Long): ResponseEntity<CategoryResponseDTO>
+        +GET /categories getActive(): ResponseEntity<List<CategoryResponseDTO>>
+    }
+    
+    class BulkImportController {
+        -BulkImportService bulkImportService
+        --
+        +POST /bulk/import-json importJson(BulkImportDTO): ResponseEntity<BulkImportResultDTO>
+        +POST /bulk/import-file importFile(MultipartFile): ResponseEntity<BulkImportResultDTO>
+    }
+}
+
+package "Business Layer\n<<Service>>" as Services {
+    interface ProductService {
+        --
+        +createProduct(String, String, Long): Product
+        +updateProduct(Long, String, String, Long): Product
+        +activateProduct(Long): void
+        +deactivateProduct(Long): void
+        +getProductById(Long): Optional<Product>
+        +getAllActiveProducts(): List<Product>
+        +getProductsByCategory(Long): List<Product>
+    }
+    
+    interface ProductPriceService {
+        --
+        +createPrice(Long, String, BigDecimal): ProductPrice
+        +changePrice(Long, BigDecimal): void
+        +expirePrice(Long): void
+        +getPrice(Long): Optional<ProductPrice>
+        +getActivePrices(Long): List<ProductPrice>
+    }
+    
+    interface ProductInventoryService {
+        --
+        +createInventory(Long, int): ProductInventory
+        +reserveStock(Long, int): void
+        +releaseStock(Long, int): void
+        +clearReservations(Long): void
+        +getInventory(Long): Optional<ProductInventory>
+    }
+    
+    interface CategoryService {
+        --
+        +createCategory(String, String): Category
+        +updateCategory(Long, String, String): Category
+        +activateCategory(Long): void
+        +deactivateCategory(Long): void
+        +getCategoryById(Long): Optional<Category>
+        +getAllActiveCategories(): List<Category>
+    }
+    
+    interface BulkImportService {
+        --
+        +importData(BulkImportDTO): BulkImportResultDTO
+    }
+}
+
+package "Domain Layer\n<<Model>>" as DomainModels {
+    class Product {
+        -Long id
+        -String name
+        -String description
+        -boolean active
+        -Long categoryId
+        -BigDecimal price
+        -String sku
+        -Integer stockQuantity
+        -LocalDateTime createdAt
+        -LocalDateTime updatedAt
+        --
+        +create(String, String, Long, BigDecimal, String, Integer): Product
+        +activate(): void
+        +deactivate(): void
+        +rename(String): void
+        +changeDescription(String): void
+        +reassignCategory(Long): void
+        +changeStock(Integer): void
+    }
+    
+    class Category {
+        -Long id
+        -String title
+        -String description
+        -boolean active
+        -LocalDateTime createdAt
+        -LocalDateTime updatedAt
+        --
+        +create(String, String): Category
+        +activate(): void
+        +deactivate(): void
+        +rename(String): void
+        +changeDescription(String): void
+    }
+    
+    class ProductPrice {
+        -Long id
+        -Long productId
+        -String currency
+        -BigDecimal amount
+        -LocalDateTime validFrom
+        -LocalDateTime validTo
+        --
+        +create(Long, String, BigDecimal): ProductPrice
+        +changeAmount(BigDecimal): void
+        +expire(): void
+        +isActiveNow(): boolean
+        +isActiveAt(LocalDateTime): boolean
+    }
+    
+    class ProductInventory {
+        -Long productId
+        -int availableQuantity
+        -int reservedQuantity
+        -LocalDateTime lastUpdated
+        -Long version
+        --
+        +create(Long, int): ProductInventory
+        +reserve(int): void
+        +release(int): void
+        +clearReservations(): void
+        +availableStock(): int
+    }
+}
+
+package "Data Transfer Objects\n<<DTO>>" as DTOs {
+    class ProductRequestDTO {
+        +String name
+        +String description
+        +Long categoryId
+    }
+    
+    class ProductResponseDTO {
+        +Long id
+        +String name
+        +String description
+        +boolean active
+        +Long categoryId
+    }
+    
+    class PriceRequestDTO {
+        +Long productId
+        +String currency
+        +BigDecimal amount
+    }
+    
+    class PriceResponseDTO {
+        +Long id
+        +Long productId
+        +String currency
+        +BigDecimal amount
+        +boolean active
+    }
+    
+    class InventoryRequestDTO {
+        +Long productId
+        +int quantity
+    }
+    
+    class InventoryResponseDTO {
+        +Long productId
+        +int availableQuantity
+        +int reservedQuantity
+    }
+    
+    class CategoryRequestDTO {
+        +String title
+        +String description
+    }
+    
+    class CategoryResponseDTO {
+        +Long id
+        +String title
+        +String description
+        +boolean active
+    }
+    
+    class BulkImportDTO {
+        +List<CategoryImportDTO> categories
+        +List<ProductImportDTO> products
+        +fromJson(String): BulkImportDTO
+    }
+    
+    class BulkImportResultDTO {
+        +int categoriesImported
+        +int productsImported
+        +List<String> errors
+    }
+    
+    class CategoryImportDTO {
+        +String title
+        +String description
+    }
+    
+    class ProductImportDTO {
+        +String name
+        +String description
+        +String categoryTitle
+        +Integer stockQuantity
+        +Double price
+        +String currency
+    }
+}
+
+package "Infrastructure\n<<Spring Boot>>" as Infrastructure {
+    class CatalogueServiceApplication {
+        --
+        +main(String[]): void
+    }
+}
+
+package "Exception Handling\n<<Custom Exceptions>>" as Exceptions {
+    class InvalidProductException {
+        +InvalidProductException(String)
+    }
+    
+    class ProductNotFoundException {
+        +ProductNotFoundException(String)
+    }
+    
+    class CategoryNotFoundException {
+        +CategoryNotFoundException(String)
+    }
+    
+    class InvalidInventoryOperationException {
+        +InvalidInventoryOperationException(String)
+    }
+    
+    class InvalidPriceException {
+        +InvalidPriceException(String)
+    }
+    
+    class DatabaseOperationException {
+        +DatabaseOperationException(String)
+    }
+}
+
+' Controller to Service Dependencies (Dependency Injection)
+ProductController .down.|> ProductService : <<uses>>
+PriceController .down.|> ProductPriceService : <<uses>>
+InventoryController .down.|> ProductInventoryService : <<uses>>
+CategoryController .down.|> CategoryService : <<uses>>
+BulkImportController .down.|> BulkImportService : <<uses>>
+
+' Controller to DTO Relationships (Request/Response)
+ProductController .left.> ProductRequestDTO : <<receives>>
+ProductController .right.> ProductResponseDTO : <<returns>>
+PriceController .left.> PriceRequestDTO : <<receives>>
+PriceController .right.> PriceResponseDTO : <<returns>>
+InventoryController .left.> InventoryRequestDTO : <<receives>>
+InventoryController .right.> InventoryResponseDTO : <<returns>>
+CategoryController .left.> CategoryRequestDTO : <<receives>>
+CategoryController .right.> CategoryResponseDTO : <<returns>>
+BulkImportController .left.> BulkImportDTO : <<receives>>
+BulkImportController .right.> BulkImportResultDTO : <<returns>>
+
+' Service to Domain Dependencies
+ProductService .down.|> Product : <<manages>>
+ProductPriceService .down.|> ProductPrice : <<manages>>
+ProductInventoryService .down.|> ProductInventory : <<manages>>
+CategoryService .down.|> Category : <<manages>>
+BulkImportService .down.|> Product : <<creates>>
+BulkImportService .down.|> Category : <<creates>>
+
+' DTO Relationships
+BulkImportDTO .down.> CategoryImportDTO : <<contains>>
+BulkImportDTO .down.> ProductImportDTO : <<contains>>
+
+' Exception Relationships
+Services .right.> Exceptions : <<throws>>
+
+' Domain Entity Relationships (Business Logic)
+Product "1" -down-> "1" Category : belongs\nto
+Product "1" -left-> "0..*" ProductPrice : has\nprices
+Product "1" -right-> "1" ProductInventory : has\ninventory
+
+' Cross-cutting concerns
+note bottom of Controllers
+  **REST API Endpoints**
+  • HTTP request/response handling
+  • Input validation (@Valid)
+  • HTTP status codes
+  • OpenAPI documentation
+  • File upload support (BulkImport)
+end note
+
+note bottom of Services
+  **Business Logic Layer**
+  • Transaction management
+  • Business rule enforcement
+  • Orchestration of domain operations
+  • Error handling and translation
+  • Bulk data processing
+end note
+
+note top of DomainModels
+  **Domain-Driven Design**
+  • Rich domain models with behavior
+  • Aggregate roots (Product, Category)
+  • Factory methods for entity creation
+  • Business invariants enforcement
+end note
+
+note top of DTOs
+  **Data Transfer Objects**
+  • API contract definition
+  • Separation of concerns
+  • Validation annotations
+  • Serialization/deserialization
+  • Bulk import support
+end note
+
+note right of Exceptions
+  **Exception Handling**
+  • Custom business exceptions
+  • Global exception handler
+  • Proper HTTP status mapping
+  • Error response standardization
+end note
+
+note right of Infrastructure
+  **Spring Boot Application**
+  • Application entry point
+  • Component scanning
+  • Auto-configuration
+  • Embedded server startup
+end note
+
+' Legend
+legend right
+  **Legend**
+  |= Symbol |= Meaning |
+  | .down.|> | Dependency Injection |
+  | .left.> | Receives Input |
+  | .right.> | Returns Output |
+  | .down.|> | Manages/Controls |
+  | .down.> | Contains/Composes |
+  | --> | Association |
+  | "1" --> "0..*" | One-to-Many |
+end legend
+
+@enduml
