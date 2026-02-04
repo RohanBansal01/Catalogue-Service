@@ -9,6 +9,8 @@ import com.solveda.catalogueservice.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,9 +58,8 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public Product createProduct(String name, String description, Long categoryId) {
-        BigDecimal price = BigDecimal.ZERO;
         String sku = generateSku(name);
-        Integer stockQuantity = 0;
+
 
         Product product;
         try {
@@ -66,9 +67,7 @@ public class ProductServiceImpl implements ProductService {
                     name,
                     description,
                     categoryId,
-                    price,
-                    sku,
-                    stockQuantity
+                    sku
             );
         } catch (IllegalArgumentException ex) {
             throw new InvalidProductException(ex.getMessage());
@@ -209,6 +208,38 @@ public class ProductServiceImpl implements ProductService {
                     "Error while " + operation + " product: " + product.getName(), ex);
         }
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Product> getAllActiveProducts(Pageable pageable) {
+        return productRepository.findByActiveTrue(pageable);
+    }
+
+    /**
+     * Retrieves all products for a given category in a paginated and sortable format.
+     * <p>
+     * Products are filtered by {@code categoryId}. The results are returned in a
+     * {@link org.springframework.data.domain.Page} to support pagination and sorting
+     * according to the provided {@link Pageable} parameter.
+     *
+     * @param categoryId the identifier of the category
+     * @param pageable   pagination and sorting information
+     * @return a {@link org.springframework.data.domain.Page} containing {@link Product} entities for the category
+     *
+     * @throws DatabaseOperationException if there is an error accessing the database
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Product> getProductsByCategory(Long categoryId, Pageable pageable) {
+        try {
+            return productRepository.findByCategoryId(categoryId, pageable);
+        } catch (DataAccessException ex) {
+            throw new DatabaseOperationException(
+                    "Error fetching products for categoryId=" + categoryId, ex
+            );
+        }
+    }
+
 
     /**
      * Generates a SKU for the product using its name and a random UUID suffix.

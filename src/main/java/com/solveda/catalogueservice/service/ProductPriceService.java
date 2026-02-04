@@ -1,6 +1,9 @@
 package com.solveda.catalogueservice.service;
 
+import com.solveda.catalogueservice.dto.PaginatedResponseDTO;
+import com.solveda.catalogueservice.model.Currency;
 import com.solveda.catalogueservice.model.ProductPrice;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -10,7 +13,7 @@ import java.util.Optional;
  * Service interface for managing product pricing.
  * <p>
  * Handles creation, updates, expiration, and retrieval
- * of product prices.
+ * of product prices. Supports paginated retrieval of active prices.
  * </p>
  */
 public interface ProductPriceService {
@@ -58,4 +61,26 @@ public interface ProductPriceService {
      * @return list of active prices
      */
     List<ProductPrice> getActivePrices(Long productId);
+
+    /**
+     * Retrieves the currently active price for a given product and currency.
+     *
+     * @param productId the product identifier
+     * @param currency  the currency code (ISO format, e.g., "USD", "INR")
+     * @return an optional containing the active price if found
+     */
+    Optional<ProductPrice> getActivePrice(Long productId, Currency currency);
+
+    // ===============================================
+    // NEW: Paginated retrieval of active prices
+    // ===============================================
+    /**
+     * Retrieves all active prices for a product with pagination.
+     * Active prices are those where {@code validTo IS NULL} or {@code validTo > now}.
+     *
+     * @param productId the product identifier
+     * @param pageable  pagination and sorting information
+     * @return paginated response DTO containing active prices
+     */
+    PaginatedResponseDTO<ProductPrice> getActivePrices(Long productId, Pageable pageable);
 }

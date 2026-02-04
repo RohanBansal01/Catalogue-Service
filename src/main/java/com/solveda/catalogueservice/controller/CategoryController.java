@@ -1,11 +1,16 @@
 package com.solveda.catalogueservice.controller;
 
+import com.solveda.catalogueservice.dto.PaginatedResponseDTO;
 import com.solveda.catalogueservice.dto.CategoryRequestDTO;
 import com.solveda.catalogueservice.dto.CategoryResponseDTO;
 import com.solveda.catalogueservice.model.Category;
 import com.solveda.catalogueservice.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,25 +21,22 @@ import java.util.List;
  * REST controller for managing {@link Category} entities.
  * <p>
  * Provides endpoints to create, update, activate, deactivate, and retrieve categories.
- * Responses are mapped to {@link CategoryResponseDTO} for consistent API output.
+ * Supports pagination and sorting for listing active categories.
+ * Responses are wrapped in {@link ResponseEntity} with standardized DTOs.
  * </p>
- *
- * <p>All category operations delegate to {@link CategoryService} which
- * encapsulates business logic, validation, and persistence.</p>
  */
 @RestController
 @RequestMapping("/api/categories")
 @RequiredArgsConstructor
 public class CategoryController {
 
-    /** Service that handles all category business logic */
     private final CategoryService categoryService;
 
     /**
      * Creates a new category.
      *
-     * @param request the {@link CategoryRequestDTO} containing title and optional description
-     * @return {@link ResponseEntity} with status 201 Created and the created {@link CategoryResponseDTO}
+     * @param request {@link CategoryRequestDTO} containing title and description
+     * @return {@link ResponseEntity} containing {@link CategoryResponseDTO} with HTTP status 201 CREATED
      */
     @PostMapping
     public ResponseEntity<CategoryResponseDTO> create(@Valid @RequestBody CategoryRequestDTO request) {
@@ -43,11 +45,11 @@ public class CategoryController {
     }
 
     /**
-     * Updates an existing category by ID.
+     * Updates an existing category.
      *
-     * @param id the ID of the category to update
-     * @param request the {@link CategoryRequestDTO} containing updated title and description
-     * @return {@link ResponseEntity} with status 200 OK and the updated {@link CategoryResponseDTO}
+     * @param id      the ID of the category to update
+     * @param request {@link CategoryRequestDTO} containing updated title and description
+     * @return {@link ResponseEntity} containing {@link CategoryResponseDTO} with HTTP status 200 OK
      */
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> update(@PathVariable Long id,
@@ -57,13 +59,10 @@ public class CategoryController {
     }
 
     /**
-     * Activates a category by ID.
-     * <p>
-     * Idempotent operation: activating an already active category has no effect.
-     * </p>
+     * Activates a category.
      *
      * @param id the ID of the category to activate
-     * @return {@link ResponseEntity} with status 204 No Content
+     * @return {@link ResponseEntity} with HTTP status 204 NO CONTENT
      */
     @PostMapping("/{id}/activate")
     public ResponseEntity<Void> activate(@PathVariable Long id) {
@@ -72,13 +71,10 @@ public class CategoryController {
     }
 
     /**
-     * Deactivates a category by ID.
-     * <p>
-     * Idempotent operation: deactivating an already inactive category has no effect.
-     * </p>
+     * Deactivates a category.
      *
      * @param id the ID of the category to deactivate
-     * @return {@link ResponseEntity} with status 204 No Content
+     * @return {@link ResponseEntity} with HTTP status 204 NO CONTENT
      */
     @PostMapping("/{id}/deactivate")
     public ResponseEntity<Void> deactivate(@PathVariable Long id) {
@@ -87,10 +83,10 @@ public class CategoryController {
     }
 
     /**
-     * Retrieves a category by ID.
+     * Retrieves a category by its ID.
      *
      * @param id the ID of the category
-     * @return {@link ResponseEntity} with status 200 OK and the {@link CategoryResponseDTO}
+     * @return {@link ResponseEntity} containing {@link CategoryResponseDTO} with HTTP status 200 OK
      */
     @GetMapping("/{id}")
     public ResponseEntity<CategoryResponseDTO> getById(@PathVariable Long id) {
@@ -99,24 +95,43 @@ public class CategoryController {
     }
 
     /**
-     * Retrieves all active categories.
+     * Retrieves all active categories with pagination and sorting.
      *
-     * @return {@link ResponseEntity} with status 200 OK and a list of {@link CategoryResponseDTO}
+     * @param page      zero-based page index (default 0)
+     * @param size      number of items per page (default 10)
+     * @param sortBy    field to sort by (default "title")
+     * @param direction sort direction, ASC or DESC (default ASC)
+     * @return {@link ResponseEntity} containing {@link PaginatedResponseDTO} of active categories
      */
     @GetMapping
-    public ResponseEntity<List<CategoryResponseDTO>> getActive() {
-        List<CategoryResponseDTO> response = categoryService.getAllActiveCategories()
-                .stream()
-                .map(this::toResponse)
-                .toList();
-        return ResponseEntity.ok(response);
+    public ResponseEntity<PaginatedResponseDTO<CategoryResponseDTO>> getActive(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "title") String sortBy,
+            @RequestParam(defaultValue = "ASC") String direction
+    ) {
+        Sort.Direction sortDirection;
+        try {
+            sortDirection = Sort.Direction.fromString(direction);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, sortBy));
+        Page<Category> categoryPage = categoryService.getAllActiveCategories(pageable);
+
+        return ResponseEntity.ok(toPaginatedResponse(categoryPage));
     }
 
+    // =========================
+    // HELPER METHODS
+    // =========================
+
     /**
-     * Converts a {@link Category} entity to {@link CategoryResponseDTO}.
+     * Converts a {@link Category} entity into a {@link CategoryResponseDTO}.
      *
-     * @param category the entity to convert
-     * @return the DTO representation of the category
+     * @param category the category entity
+     * @return the corresponding {@link CategoryResponseDTO}
      */
     private CategoryResponseDTO toResponse(Category category) {
         return new CategoryResponseDTO(
@@ -124,6 +139,28 @@ public class CategoryController {
                 category.getTitle(),
                 category.getDescription(),
                 category.isActive()
+        );
+    }
+
+    /**
+     * Converts a {@link Page} of {@link Category} entities into a {@link PaginatedResponseDTO}.
+     *
+     * @param categoryPage the page of categories
+     * @return {@link PaginatedResponseDTO} containing category DTOs and pagination metadata
+     */
+    private PaginatedResponseDTO<CategoryResponseDTO> toPaginatedResponse(Page<Category> categoryPage) {
+        List<CategoryResponseDTO> content = categoryPage.getContent().stream()
+                .map(this::toResponse)
+                .toList();
+
+        return new PaginatedResponseDTO<>(
+                content,
+                categoryPage.getNumber(),
+                categoryPage.getSize(),
+                categoryPage.getTotalElements(),
+                categoryPage.getTotalPages(),
+                categoryPage.isFirst(),
+                categoryPage.isLast()
         );
     }
 }

@@ -1,6 +1,8 @@
 package com.solveda.catalogueservice.service;
 
 import com.solveda.catalogueservice.model.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -87,4 +89,22 @@ public interface ProductService {
      * @return optional containing the product if found
      */
     Optional<Product> getProductByNameAndCategory(String name, Long categoryId);
+
+    /**
+     * Retrieves all active products with pagination.
+     *
+     * @param pageable pagination and sorting information
+     * @return paginated list of active products
+     */
+    Page<Product> getAllActiveProducts(Pageable pageable);
+
+    /**
+     * Retrieves products by category with pagination.
+     *
+     * @param categoryId category identifier
+     * @param pageable   pagination and sorting information
+     * @return paginated list of products in the category
+     */
+    Page<Product> getProductsByCategory(Long categoryId, Pageable pageable);
+
 }

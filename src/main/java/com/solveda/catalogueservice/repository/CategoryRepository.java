@@ -1,6 +1,8 @@
 package com.solveda.catalogueservice.repository;
 
 import com.solveda.catalogueservice.model.Category;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -39,9 +41,15 @@ public interface CategoryRepository extends JpaRepository<Category, Long> {
     Optional<Category> findByTitle(String title);
 
     /**
-     * Retrieves all categories that are currently active.
+     * Retrieves a paginated list of all active {@link Category} entities.
+     * <p>
+     * An active category is defined as having {@code active = true}.
+     * The results are returned in a {@link org.springframework.data.domain.Page} to
+     * support pagination and sorting.
      *
-     * @return a {@link List} of active {@link Category} entities
+     * @param pageable the pagination and sorting information
+     * @return a {@link org.springframework.data.domain.Page} containing active {@link Category} entities
      */
-    List<Category> findByActiveTrue();
+    Page<Category> findByActiveTrue(Pageable pageable);
+
 }
