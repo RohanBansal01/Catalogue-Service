@@ -10,6 +10,8 @@ import com.solveda.catalogueservice.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -145,12 +147,19 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     /**
-     * {@inheritDoc}
+     * Retrieves all active categories in a paginated format.
+     * <p>
+     * An active category is defined as a {@link Category} with {@code active = true}.
+     * The returned {@link org.springframework.data.domain.Page} supports pagination and sorting
+     * as defined by the provided {@link Pageable} parameter.
+     *
+     * @param pageable the pagination and sorting information
+     * @return a {@link org.springframework.data.domain.Page} containing active {@link Category} entities
      */
     @Override
     @Transactional(readOnly = true)
-    public List<Category> getAllActiveCategories() {
-        return categoryRepository.findByActiveTrue();
+    public Page<Category> getAllActiveCategories(Pageable pageable) {
+        return categoryRepository.findByActiveTrue(pageable);
     }
 
     /**

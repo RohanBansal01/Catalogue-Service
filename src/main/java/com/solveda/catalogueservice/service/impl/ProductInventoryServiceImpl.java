@@ -1,5 +1,6 @@
 package com.solveda.catalogueservice.service.impl;
 
+import com.solveda.catalogueservice.dto.PaginatedResponseDTO;
 import com.solveda.catalogueservice.exception.DatabaseOperationException;
 import com.solveda.catalogueservice.exception.InvalidInventoryOperationException;
 import com.solveda.catalogueservice.exception.ProductNotFoundException;
@@ -8,25 +9,30 @@ import com.solveda.catalogueservice.repository.ProductInventoryRepository;
 import com.solveda.catalogueservice.service.ProductInventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 /**
- * Implementation of {@link ProductInventoryService} that manages product inventory.
+ * Implementation of {@link ProductInventoryService} for managing product inventory.
+ *
  * <p>
- * Responsibilities:
+ * Provides functionality for:
  * <ul>
- *     <li>Create inventory for products.</li>
- *     <li>Reserve and release stock.</li>
- *     <li>Clear reservations and fetch inventory details.</li>
- *     <li>Handles database operations with proper exception handling.</li>
+ *     <li>Creating inventory for products</li>
+ *     <li>Reserving and releasing stock quantities</li>
+ *     <li>Clearing reserved stock</li>
+ *     <li>Fetching inventory details for a product</li>
+ *     <li>Retrieving active inventories in a paginated format</li>
  * </ul>
  * </p>
+ *
  * <p>
- * All write operations are transactional. Read operations are marked
- * {@link Transactional#readOnly()} for optimized performance.
+ * This class handles transactional operations, exception mapping, and validation of
+ * inventory operations.
  * </p>
  */
 @Service
@@ -36,18 +42,18 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
 
     private final ProductInventoryRepository inventoryRepository;
 
-    /* =========================
-       CREATE
-       ========================= */
+    // =========================
+    // CREATE
+    // =========================
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Creates inventory for a product with the given initial quantity.
-     * </p>
+     * Creates a new inventory record for the specified product.
      *
-     * @throws InvalidInventoryOperationException if validation fails
-     * @throws DatabaseOperationException        if saving to database fails
+     * @param productId       the ID of the product
+     * @param initialQuantity the initial stock quantity (must be ≥ 0)
+     * @return the saved {@link ProductInventory} entity
+     * @throws InvalidInventoryOperationException if the initial quantity is invalid
+     * @throws DatabaseOperationException        if there is a database error while saving
      */
     @Override
     public ProductInventory createInventory(Long productId, int initialQuantity) {
@@ -57,22 +63,21 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
         } catch (IllegalArgumentException ex) {
             throw new InvalidInventoryOperationException(ex.getMessage());
         }
-        return saveInventory(inventory, "creating");
+        return saveInventory(inventory, "creating inventory");
     }
 
-    /* =========================
-       STOCK OPERATIONS
-       ========================= */
+    // =========================
+    // STOCK OPERATIONS
+    // =========================
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Reserves stock for a product. Throws an exception if insufficient stock.
-     * </p>
+     * Reserves a specified quantity of stock for a product.
      *
-     * @throws ProductNotFoundException           if inventory is not found
-     * @throws InvalidInventoryOperationException if reservation fails
-     * @throws DatabaseOperationException         if saving to database fails
+     * @param productId the ID of the product
+     * @param quantity  the quantity to reserve
+     * @throws ProductNotFoundException           if the product inventory does not exist
+     * @throws InvalidInventoryOperationException if quantity is invalid or insufficient stock
+     * @throws DatabaseOperationException        if there is a database error while saving
      */
     @Override
     public void reserveStock(Long productId, int quantity) {
@@ -86,14 +91,13 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Releases previously reserved stock.
-     * </p>
+     * Releases a previously reserved quantity of stock for a product.
      *
-     * @throws ProductNotFoundException           if inventory is not found
-     * @throws InvalidInventoryOperationException if release fails
-     * @throws DatabaseOperationException         if saving to database fails
+     * @param productId the ID of the product
+     * @param quantity  the quantity to release
+     * @throws ProductNotFoundException           if the product inventory does not exist
+     * @throws InvalidInventoryOperationException if quantity is invalid or exceeds reserved stock
+     * @throws DatabaseOperationException        if there is a database error while saving
      */
     @Override
     public void releaseStock(Long productId, int quantity) {
@@ -107,13 +111,11 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
     }
 
     /**
-     * {@inheritDoc}
-     * <p>
-     * Clears all reserved stock for the product.
-     * </p>
+     * Clears all reserved stock for a product.
      *
-     * @throws ProductNotFoundException   if inventory is not found
-     * @throws DatabaseOperationException if saving to database fails
+     * @param productId the ID of the product
+     * @throws ProductNotFoundException    if the product inventory does not exist
+     * @throws DatabaseOperationException  if there is a database error while saving
      */
     @Override
     public void clearReservations(Long productId) {
@@ -122,12 +124,15 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
         saveInventory(inventory, "clearing reservations");
     }
 
-    /* =========================
-       READ
-       ========================= */
+    // =========================
+    // READ
+    // =========================
 
     /**
-     * {@inheritDoc}
+     * Retrieves the inventory details for a specific product.
+     *
+     * @param productId the ID of the product
+     * @return an {@link Optional} containing the inventory if found
      */
     @Override
     @Transactional(readOnly = true)
@@ -135,16 +140,42 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
         return inventoryRepository.findById(productId);
     }
 
-    /* =========================
-       INTERNAL HELPERS
-       ========================= */
+    // =========================
+    // PAGINATION
+    // =========================
 
     /**
-     * Finds inventory for a product or throws {@link ProductNotFoundException}.
+     * Retrieves all active inventories (available stock > 0) in a paginated format.
      *
-     * @param productId product identifier
-     * @return the {@link ProductInventory}
-     * @throws ProductNotFoundException if inventory is not found
+     * @param pageable pagination information (page number, size, sort)
+     * @return a {@link PaginatedResponseDTO} containing active inventories
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public PaginatedResponseDTO<ProductInventory> getAllActiveInventories(Pageable pageable) {
+        Page<ProductInventory> page = inventoryRepository.findAllByAvailableQuantityGreaterThan(0, pageable);
+
+        return new PaginatedResponseDTO<>(
+                page.getContent(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements(),
+                page.getTotalPages(),
+                page.isFirst(),
+                page.isLast()
+        );
+    }
+
+    // =========================
+    // INTERNAL HELPERS
+    // =========================
+
+    /**
+     * Finds inventory by product ID or throws {@link ProductNotFoundException}.
+     *
+     * @param productId the product ID
+     * @return the {@link ProductInventory} entity
+     * @throws ProductNotFoundException if the inventory does not exist
      */
     private ProductInventory findInventoryOrThrow(Long productId) {
         return inventoryRepository.findById(productId)
@@ -153,12 +184,12 @@ public class ProductInventoryServiceImpl implements ProductInventoryService {
     }
 
     /**
-     * Saves inventory to the database with error handling.
+     * Saves the given inventory to the database, wrapping any database exceptions.
      *
-     * @param inventory inventory to save
-     * @param operation description of the operation
-     * @return saved {@link ProductInventory}
-     * @throws DatabaseOperationException if saving fails
+     * @param inventory the inventory entity to save
+     * @param operation description of the operation (for error messages)
+     * @return the saved {@link ProductInventory} entity
+     * @throws DatabaseOperationException if a database error occurs
      */
     private ProductInventory saveInventory(ProductInventory inventory, String operation) {
         try {

@@ -3,15 +3,14 @@ package com.solveda.catalogueservice.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
  * Represents a product in the catalogue.
  * <p>
  * This entity models the core attributes of a product, including its identity, state,
- * inventory, pricing reference, and auditing information. It also contains domain-specific
- * behavior for managing activation, renaming, stock updates, and category reassignments.
+ * category reference, and auditing information. Price and stock are now tracked
+ * separately via {@link ProductPrice} and inventory management.
  * </p>
  *
  * <p>
@@ -57,17 +56,9 @@ public class Product {
     @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
-    /** Default price of the product. */
-    @Column(nullable = false)
-    private BigDecimal price;
-
     /** Unique SKU (Stock Keeping Unit) identifier. */
     @Column(nullable = false, unique = true)
     private String sku;
-
-    /** Current stock quantity for the product. */
-    @Column(name = "stock_quantity", nullable = false)
-    private Integer stockQuantity;
 
     /* =========================
        Auditing
@@ -88,12 +79,10 @@ public class Product {
     /**
      * Factory method to create a new {@link Product} instance.
      *
-     * @param name          product name, must not be blank
-     * @param description   product description, must not be blank
-     * @param categoryId    ID of the associated category, must not be null
-     * @param price         initial price (if null, defaults to 0)
-     * @param sku           unique SKU, must not be blank
-     * @param stockQuantity initial stock quantity (if null, defaults to 0)
+     * @param name       product name, must not be blank
+     * @param description product description, must not be blank
+     * @param categoryId ID of the associated category, must not be null
+     * @param sku        unique SKU, must not be blank
      * @return a fully initialized {@link Product} instance
      * @throws IllegalArgumentException if name, description, categoryId, or SKU is invalid
      */
@@ -101,9 +90,7 @@ public class Product {
             String name,
             String description,
             Long categoryId,
-            BigDecimal price,
-            String sku,
-            Integer stockQuantity
+            String sku
     ) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("Product name must not be blank");
@@ -122,9 +109,7 @@ public class Product {
         product.name = name;
         product.description = description;
         product.categoryId = categoryId;
-        product.price = price != null ? price : BigDecimal.ZERO;
         product.sku = sku;
-        product.stockQuantity = stockQuantity != null ? stockQuantity : 0;
         product.active = true;
         product.createdAt = LocalDateTime.now();
         product.updatedAt = product.createdAt;
@@ -136,32 +121,21 @@ public class Product {
        Domain Behavior
        ========================= */
 
-    /**
-     * Deactivates the product (sets {@code active} to false).
-     * Safe to call multiple times.
-     */
+    /** Deactivates the product. Safe to call multiple times. */
     public void deactivate() {
         if (!this.active) return;
         this.active = false;
         touch();
     }
 
-    /**
-     * Activates the product (sets {@code active} to true).
-     * Safe to call multiple times.
-     */
+    /** Activates the product. Safe to call multiple times. */
     public void activate() {
         if (this.active) return;
         this.active = true;
         touch();
     }
 
-    /**
-     * Renames the product.
-     *
-     * @param newName new product name, must not be blank
-     * @throws IllegalArgumentException if newName is null or blank
-     */
+    /** Renames the product. */
     public void rename(String newName) {
         if (newName == null || newName.isBlank()) {
             throw new IllegalArgumentException("Product name must not be blank");
@@ -170,41 +144,18 @@ public class Product {
         touch();
     }
 
-    /**
-     * Changes the product description.
-     *
-     * @param newDescription new product description
-     */
+    /** Changes the product description. */
     public void changeDescription(String newDescription) {
         this.description = newDescription;
         touch();
     }
 
-    /**
-     * Reassigns the product to a new category.
-     *
-     * @param newCategoryId new category ID, must not be null
-     * @throws IllegalArgumentException if newCategoryId is null
-     */
+    /** Reassigns the product to a new category. */
     public void reassignCategory(Long newCategoryId) {
         if (newCategoryId == null) {
             throw new IllegalArgumentException("CategoryId must not be null");
         }
         this.categoryId = newCategoryId;
-        touch();
-    }
-
-    /**
-     * Updates the product stock quantity.
-     *
-     * @param newStock new stock quantity, must be non-negative
-     * @throws IllegalArgumentException if newStock is null or negative
-     */
-    public void changeStock(Integer newStock) {
-        if (newStock == null || newStock < 0) {
-            throw new IllegalArgumentException("Stock cannot be negative");
-        }
-        this.stockQuantity = newStock;
         touch();
     }
 

@@ -212,4 +212,29 @@ public class GlobalExceptionHandler {
                 "RequestDeserialization"
         );
     }
+
+
+    /**
+     * Handles {@link PriceNotFoundException} thrown by controller methods.
+     * <p>
+     * Returns a standardized error response with HTTP status 404 (Not Found)
+     * and a custom error code for client-side processing.
+     * </p>
+     *
+     * @param ex the {@link PriceNotFoundException} that was thrown
+     * @return a {@link ResponseEntity} containing a {@link ResponseStructure} with error details:
+     *         <ul>
+     *             <li>HTTP status: 404 NOT_FOUND</li>
+     *             <li>Error message from the exception</li>
+     *             <li>Custom error code: "PRICE_NOT_FOUND"</li>
+     *             <li>Originating service: "PriceService"</li>
+     *         </ul>
+     */
+    @ExceptionHandler(PriceNotFoundException.class)
+    public ResponseEntity<ResponseStructure<?>> handlePriceNotFound(PriceNotFoundException ex) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage(),
+                "PRICE_NOT_FOUND", "PriceService");
+    }
+
+
 }

@@ -1,6 +1,8 @@
 package com.solveda.catalogueservice.service;
 
 import com.solveda.catalogueservice.model.Category;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -68,10 +70,12 @@ public interface CategoryService {
      */
     Optional<Category> getCategoryByTitle(String title);
 
+
     /**
-     * Retrieves all active categories.
+     * Retrieves all active categories with pagination.
      *
-     * @return list of active categories
+     * @param pageable pagination and sorting information
+     * @return a page of active categories
      */
-    List<Category> getAllActiveCategories();
+    Page<Category> getAllActiveCategories(Pageable pageable);
 }

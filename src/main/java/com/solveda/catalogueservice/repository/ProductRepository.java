@@ -1,6 +1,8 @@
 package com.solveda.catalogueservice.repository;
 
 import com.solveda.catalogueservice.model.Product;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,50 +13,62 @@ import java.util.Optional;
  * Repository interface for {@link Product} entity.
  * <p>
  * Provides standard CRUD operations inherited from {@link JpaRepository}
- * and additional custom queries for managing products.
+ * and custom queries for retrieving products based on status, category, and name.
+ * Supports both paginated and non-paginated queries.
  * </p>
- *
- * <p>
- * Typical usage:
- * <pre>
- *     {@code
- *     List<Product> activeProducts = productRepository.findByActiveTrue();
- *     List<Product> categoryProducts = productRepository.findByCategoryId(123L);
- *     Optional<Product> product = productRepository.findByNameAndCategoryId("Laptop", 123L);
- *     }
- * </pre>
- * </p>
- *
- * @see JpaRepository
- * @see Product
  */
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
+    // =========================
+    // Non-paginated queries
+    // =========================
+
     /**
-     * Finds all products that are currently active.
+     * Retrieves all products that are currently active.
      *
-     * @return a {@link List} of active {@link Product} entities
+     * @return list of active {@link Product} entities
      */
     List<Product> findByActiveTrue();
 
     /**
-     * Finds all products belonging to a specific category.
+     * Retrieves all products belonging to a specific category.
      *
-     * @param categoryId the ID of the category
-     * @return a {@link List} of {@link Product} entities in the category
+     * @param categoryId the identifier of the category
+     * @return list of {@link Product} entities for the given category
      */
     List<Product> findByCategoryId(Long categoryId);
 
     /**
-     * Finds a product by its name and associated category ID.
+     * Finds a product by its name and category.
      * <p>
-     * Useful for idempotent checks when creating or importing products.
+     * Useful for idempotent checks, e.g., during bulk imports.
      * </p>
      *
-     * @param name       the name of the product
-     * @param categoryId the ID of the category
+     * @param name       the product name
+     * @param categoryId the category identifier
      * @return an {@link Optional} containing the {@link Product} if found, otherwise empty
      */
     Optional<Product> findByNameAndCategoryId(String name, Long categoryId);
+
+    // =========================
+    // Paginated queries
+    // =========================
+
+    /**
+     * Retrieves active products in a paginated format.
+     *
+     * @param pageable pagination and sorting information
+     * @return a {@link Page} of active {@link Product} entities
+     */
+    Page<Product> findByActiveTrue(Pageable pageable);
+
+    /**
+     * Retrieves products for a specific category in a paginated format.
+     *
+     * @param categoryId the identifier of the category
+     * @param pageable   pagination and sorting information
+     * @return a {@link Page} of {@link Product} entities for the category
+     */
+    Page<Product> findByCategoryId(Long categoryId, Pageable pageable);
 }
