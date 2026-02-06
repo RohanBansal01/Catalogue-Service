@@ -12,59 +12,141 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 /**
- * REST controller responsible for handling bulk import operations
- * for categories and products.
- * <p>
- * Supports importing data either via JSON payloads or uploaded JSON files.
- * All operations are delegated to the {@link BulkImportService}.
- * </p>
+ * REST controller responsible for handling bulk import requests for catalogue data.
+ *
+ * <p><b>Base Path:</b> {@code /bulk}</p>
+ *
+ * <p><b>Supported Import Modes</b></p>
+ * <ul>
+ *   <li><b>JSON Body Import</b> - Accepts a {@link BulkImportDTO} payload directly via request body.</li>
+ *   <li><b>File Upload Import</b> - Accepts a JSON file via multipart upload and parses it into {@link BulkImportDTO}.</li>
+ * </ul>
+ *
+ * <p><b>Batch Processing</b></p>
+ * <ul>
+ *   <li>Supports configurable batch sizes for categories and products.</li>
+ *   <li>Batch sizes are validated at controller level to avoid unnecessary service invocation.</li>
+ * </ul>
+ *
+ * <p><b>Validation Strategy</b></p>
+ * <ul>
+ *   <li>Uses {@link Valid} to trigger Jakarta Bean Validation on {@link BulkImportDTO}.</li>
+ *   <li>Batch size parameters must be greater than zero.</li>
+ * </ul>
+ *
+ * <p><b>Response Model</b></p>
+ * <ul>
+ *   <li>Returns {@link BulkImportResultDTO} containing imported counts and error/warning messages.</li>
+ *   <li>Returns HTTP 200 when processing completes successfully (even with partial errors).</li>
+ *   <li>Returns HTTP 400 for invalid batch size or file parsing failures.</li>
+ * </ul>
  */
 @RestController
 @RequestMapping("/bulk")
 @RequiredArgsConstructor
 public class BulkImportController {
 
-    /** Service that handles bulk import logic */
+    /**
+     * Default category batch size used when request parameter is not provided.
+     */
+    private static final int DEFAULT_CATEGORY_BATCH_SIZE = 10;
+
+    /**
+     * Default product batch size used when request parameter is not provided.
+     */
+    private static final int DEFAULT_PRODUCT_BATCH_SIZE = 100;
+
     private final BulkImportService bulkImportService;
 
     /**
-     * Imports categories and products from a JSON request body.
-     * <p>
-     * Expects a {@link BulkImportDTO} containing lists of categories and products.
-     * Returns a {@link BulkImportResultDTO} with the number of items imported
-     * and any errors or warnings encountered.
-     * </p>
+     * Imports catalogue data using a JSON request body.
      *
-     * @param request the bulk import data to process
-     * @return response entity containing the result of the import
+     * <p><b>Endpoint:</b> {@code POST /bulk/import-json}</p>
+     *
+     * <p>Validates batch size parameters before invoking the import service.</p>
+     *
+     * @param request           validated bulk import request containing categories and products.
+     * @param categoryBatchSize maximum number of categories processed per transaction batch.
+     * @param productBatchSize  maximum number of products processed per transaction batch.
+     * @return HTTP 200 with import result on success, HTTP 400 if batch sizes are invalid.
      */
     @PostMapping("/import-json")
-    public ResponseEntity<BulkImportResultDTO> importJson(@RequestBody @Valid BulkImportDTO request) {
-        BulkImportResultDTO result = bulkImportService.importData(request);
+    public ResponseEntity<BulkImportResultDTO> importJson(
+            @RequestBody @Valid BulkImportDTO request,
+            @RequestParam(defaultValue = "" + DEFAULT_CATEGORY_BATCH_SIZE) int categoryBatchSize,
+            @RequestParam(defaultValue = "" + DEFAULT_PRODUCT_BATCH_SIZE) int productBatchSize
+    ) {
+
+        if (categoryBatchSize <= 0) {
+            return ResponseEntity.badRequest().body(
+                    new BulkImportResultDTO(0, 0,
+                            List.of("Invalid categoryBatchSize: must be greater than 0"))
+            );
+        }
+
+        if (productBatchSize <= 0) {
+            return ResponseEntity.badRequest().body(
+                    new BulkImportResultDTO(0, 0,
+                            List.of("Invalid productBatchSize: must be greater than 0"))
+            );
+        }
+
+        BulkImportResultDTO result =
+                bulkImportService.importData(request, categoryBatchSize, productBatchSize);
+
         return ResponseEntity.ok(result);
     }
 
     /**
-     * Imports categories and products from an uploaded JSON file.
-     * <p>
-     * Reads the contents of the uploaded file, parses it into a {@link BulkImportDTO},
-     * and then processes the import using {@link BulkImportService}.
-     * Returns a {@link BulkImportResultDTO} with the outcome.
-     * <p>
-     * In case of errors during file reading or JSON parsing, returns a
-     * {@link ResponseEntity} with HTTP 400 Bad Request and an error message.
-     * </p>
+     * Imports catalogue data using a multipart JSON file upload.
      *
-     * @param file the uploaded JSON file containing bulk import data
-     * @return response entity containing the result of the import or errors
+     * <p><b>Endpoint:</b> {@code POST /bulk/import-file}</p>
+     *
+     * <p>Reads the file content as a JSON string, converts it into {@link BulkImportDTO},
+     * and delegates processing to {@link BulkImportService}.</p>
+     *
+     * <p>Returns HTTP 400 for:</p>
+     * <ul>
+     *   <li>Invalid batch size parameters</li>
+     *   <li>File read failures</li>
+     *   <li>Invalid JSON format</li>
+     * </ul>
+     *
+     * @param file              uploaded JSON file containing catalogue data.
+     * @param categoryBatchSize maximum number of categories processed per transaction batch.
+     * @param productBatchSize  maximum number of products processed per transaction batch.
+     * @return HTTP 200 with import result if parsing + import succeeds, HTTP 400 otherwise.
      */
     @PostMapping("/import-file")
-    public ResponseEntity<BulkImportResultDTO> importFile(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<BulkImportResultDTO> importFile(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(defaultValue = "" + DEFAULT_CATEGORY_BATCH_SIZE) int categoryBatchSize,
+            @RequestParam(defaultValue = "" + DEFAULT_PRODUCT_BATCH_SIZE) int productBatchSize
+    ) {
+
+        if (categoryBatchSize <= 0) {
+            return ResponseEntity.badRequest().body(
+                    new BulkImportResultDTO(0, 0,
+                            List.of("Invalid categoryBatchSize: must be greater than 0"))
+            );
+        }
+
+        if (productBatchSize <= 0) {
+            return ResponseEntity.badRequest().body(
+                    new BulkImportResultDTO(0, 0,
+                            List.of("Invalid productBatchSize: must be greater than 0"))
+            );
+        }
+
         try {
             String jsonContent = new String(file.getBytes());
             BulkImportDTO request = BulkImportDTO.fromJson(jsonContent);
-            BulkImportResultDTO result = bulkImportService.importData(request);
+
+            BulkImportResultDTO result =
+                    bulkImportService.importData(request, categoryBatchSize, productBatchSize);
+
             return ResponseEntity.ok(result);
+
         } catch (Exception ex) {
             BulkImportResultDTO errorResult = new BulkImportResultDTO(
                     0, 0,

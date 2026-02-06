@@ -5,19 +5,17 @@ import com.solveda.catalogueservice.dto.BulkImportResultDTO;
 
 /**
  * Service interface for bulk import operations.
- * <p>
- * Handles validation and processing of bulk data imports
- * for catalogue entities.
- * </p>
+ * Handles validation and processing of bulk catalogue imports.
  */
 public interface BulkImportService {
 
     /**
-     * Imports catalogue data in bulk.
+     * Imports catalogue data in bulk using batch processing.
      *
-     * @param bulkImportDTO bulk import request data
-     * @return result of the bulk import operation
-     * @throws RuntimeException if import validation or processing fails
+     * @param bulkImportDTO request payload
+     * @param categoryBatchSize batch size for categories (must be > 0)
+     * @param productBatchSize batch size for products (must be > 0)
+     * @return import result summary
      */
-    BulkImportResultDTO importData(BulkImportDTO bulkImportDTO);
+    BulkImportResultDTO importData(BulkImportDTO bulkImportDTO, int categoryBatchSize, int productBatchSize);
 }
