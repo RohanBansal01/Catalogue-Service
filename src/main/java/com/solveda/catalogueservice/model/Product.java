@@ -2,8 +2,7 @@ package com.solveda.catalogueservice.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Represents a product in the catalogue.
@@ -66,11 +65,11 @@ public class Product {
 
     /** Timestamp of product creation. Immutable after creation. */
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     /** Timestamp of the last update to the product. */
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     /* =========================
        Factory Method
@@ -79,10 +78,10 @@ public class Product {
     /**
      * Factory method to create a new {@link Product} instance.
      *
-     * @param name       product name, must not be blank
+     * @param name        product name, must not be blank
      * @param description product description, must not be blank
-     * @param categoryId ID of the associated category, must not be null
-     * @param sku        unique SKU, must not be blank
+     * @param categoryId  ID of the associated category, must not be null
+     * @param sku         unique SKU, must not be blank
      * @return a fully initialized {@link Product} instance
      * @throws IllegalArgumentException if name, description, categoryId, or SKU is invalid
      */
@@ -111,7 +110,7 @@ public class Product {
         product.categoryId = categoryId;
         product.sku = sku;
         product.active = true;
-        product.createdAt = LocalDateTime.now();
+        product.createdAt = Instant.now();
         product.updatedAt = product.createdAt;
 
         return product;
@@ -165,6 +164,6 @@ public class Product {
 
     /** Updates the {@code updatedAt} timestamp to the current time. */
     private void touch() {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
     }
 }
