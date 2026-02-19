@@ -26,16 +26,24 @@ import java.util.Arrays;
  */
 public enum Currency {
 
-    /** Indian Rupee (ISO 4217 Code: INR). */
+    /**
+     * Indian Rupee (ISO 4217 Code: INR).
+     */
     INR("INR"),
 
-    /** United States Dollar (ISO 4217 Code: USD). */
+    /**
+     * United States Dollar (ISO 4217 Code: USD).
+     */
     USD("USD"),
 
-    /** Euro (ISO 4217 Code: EUR). */
+    /**
+     * Euro (ISO 4217 Code: EUR).
+     */
     EUR("EUR"),
 
-    /** British Pound Sterling (ISO 4217 Code: GBP). */
+    /**
+     * British Pound Sterling (ISO 4217 Code: GBP).
+     */
     GBP("GBP");
 
     /**
@@ -68,7 +76,6 @@ public enum Currency {
      *
      * @param code currency code to convert (example: "USD", "INR")
      * @return matching {@link Currency} enum value
-     *
      * @throws IllegalArgumentException if code is null, empty, or invalid
      */
     public static Currency fromCode(String code) {

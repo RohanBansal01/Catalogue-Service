@@ -6,8 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Represents the inventory for a specific product.
@@ -55,7 +54,7 @@ public class ProductInventory {
 
     /** Timestamp of last inventory update. */
     @Column(name = "last_updated", nullable = false)
-    private LocalDateTime lastUpdated;
+    private Instant lastUpdated;
 
     /** Version for optimistic locking. */
     @Version
@@ -86,7 +85,7 @@ public class ProductInventory {
         inventory.productId = productId;
         inventory.availableQuantity = initialQuantity;
         inventory.reservedQuantity = 0;
-        inventory.lastUpdated = LocalDateTime.now();
+        inventory.lastUpdated = Instant.now();
         return inventory;
     }
 
@@ -165,6 +164,6 @@ public class ProductInventory {
 
     /** Updates the lastUpdated timestamp to the current time. */
     private void touch() {
-        this.lastUpdated = LocalDateTime.now();
+        this.lastUpdated = Instant.now();
     }
 }

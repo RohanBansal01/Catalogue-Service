@@ -2,8 +2,7 @@ package com.solveda.catalogueservice.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Represents a category in the catalogue.
@@ -61,11 +60,11 @@ public class Category {
 
     /** Timestamp of creation. Immutable after creation. */
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     /** Timestamp of last update. Updated automatically on changes. */
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private Instant updatedAt;
 
     /* =========================
        Factory Method
@@ -88,7 +87,7 @@ public class Category {
         category.title = title;
         category.description = description;
         category.active = true;
-        category.createdAt = LocalDateTime.now();
+        category.createdAt = Instant.now();
         category.updatedAt = category.createdAt;
 
         return category;
@@ -148,6 +147,6 @@ public class Category {
 
     /** Updates the {@code updatedAt} timestamp to the current time. */
     private void touch() {
-        this.updatedAt = LocalDateTime.now();
+        this.updatedAt = Instant.now();
     }
 }
